@@ -1,3 +1,4 @@
+
 class Bullet extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y) {
         super(scene, x, y, 'bullet');
@@ -19,11 +20,7 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
             top: hero.y - (hero.scene.game.config.height / 2),
             bottom: hero.y + (hero.scene.game.config.height / 2)
         };
-
-        this.setPosition(x, y);
-        this.setActive(true);
-        this.setVisible(true);
-
+        
         this.setRotation(this.calculateRotation(direction)); // Algorithmically set rotation
 
         switch (direction) {

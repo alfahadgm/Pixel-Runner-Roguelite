@@ -1,11 +1,12 @@
 
+
 //Hero.js
 class Hero extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, texture, frame, direction) {
         super(scene, x, y, texture, frame); 
         scene.add.existing(this);          
         scene.physics.add.existing(this);  
-
+        this.scene = scene;  // Assigning scene to an instance variable
         this.body.setCollideWorldBounds(false);
 
         // set custom Hero properties
@@ -15,71 +16,74 @@ class Hero extends Phaser.Physics.Arcade.Sprite {
         this.hurtTimer = 250;       // in ms
         this.lastFired = 0;         // Initializing lastFired to ensure it has a value
         this.fireCooldown = 1000;   // Assuming a cooldown of 1000ms for firing bullets
-        this.weapons = [
-            new Weapon(scene, 0xFF0000, 1000, "Sniper"),  // Red weapon (Sniper)
-            new Weapon(scene, 0x00FF00, 500, "Pistol"),   // Green weapon (Pistol)
-            new Weapon(scene, 0x0000FF, 750, "Rifle")     // Blue weapon (Rifle)
-        ];
-        this.currentWeaponIndex = 0;
+        this.heroStats = new HeroStats();
 
-    // Initialize the weapon display text
-    this.weaponDisplayText = scene.add.text(10, 10, this.weapons[this.currentWeaponIndex].name, {
-        fontSize: '32px',
+    // Initialize weapons for the hero
+    this.weapons = WeaponFactory.getWeapons(scene);
+    this.currentWeaponIndex = 0;
+    this.currentWeapon = this.weapons[this.currentWeaponIndex];
+    this.weaponDisplayText = scene.add.text(5, 10, this.currentWeapon.name, {
+        fontSize: '12px',
         fill: '#ffffff'
-    });
+    }).setScrollFactor(0).setDepth(1000);
+    this.ammoDisplayText = scene.add.text(5, 20, this.currentWeapon.currentAmmo + "/" + this.currentWeapon.maxAmmo, {
+        fontSize: '12px',
+        fill: '#ffffff'
+    }).setScrollFactor(0).setDepth(1000);
 
-    this.weaponDisplayText.setScrollFactor(0); // This makes the text follow the camera
-    this.weaponDisplayText.setDepth(1000);     // This ensures the text is rendered above other game objects
+    this.lastFired = 0; // Keep track of the last time a bullet was fired
 
-    this.autofireEvent = this.scene.time.addEvent({
-        delay: this.weapons[this.currentWeaponIndex].cooldown,
-        callback: this.fireWeapon,
-        callbackScope: this,
+    this.autofireEvent = scene.time.addEvent({
+        delay: this.currentWeapon.cooldown, 
+        callback: this.fireWeapon, 
+        callbackScope: this, 
         loop: true
     });
     }
 
     fireWeapon() {
-        console.log('Hero: Firing current weapon.');
+        if (this.currentWeapon.currentAmmo <= 0 && this.currentWeapon.isReloading == false ){
+            this.currentWeapon.reload();
+            console.log("Reloading...");
+        } else {
         const currentTime = this.scene.time.now;
-        const currentWeapon = this.weapons[this.currentWeaponIndex];
     
-        if (currentTime > this.lastFired + currentWeapon.cooldown) {
-            let offsetX = 0;
-            let offsetY = 0;
-    
+        if (currentTime > this.lastFired + this.currentWeapon.cooldown) {
+            // Adjust the x and y offsets depending on the direction of the hero
+            let offsetX = 0, offsetY = 0;
             switch (this.direction) {
-                case 'up':
-                    offsetY = -10;
-                    break;
-                case 'down':
-                    offsetY = 10;
-                    break;
-                case 'left':
-                    offsetX = -10;
-                    break;
-                case 'right':
-                    offsetX = 10;
-                    break;
+                case 'up': offsetY = -10; break;
+                case 'down': offsetY = 10; break;
+                case 'left': offsetX = -10; break;
+                case 'right': offsetX = 10; break;
             }
     
-            this.weapons[this.currentWeaponIndex].fire(this.x + offsetX, this.y + offsetY, this.direction, this);
+            this.currentWeapon.fire(this.x + offsetX, this.y + offsetY, this.direction, this);
             this.lastFired = currentTime;
         }
+
+        this.ammoDisplayText.setText(this.currentWeapon.currentAmmo + "/" + this.currentWeapon.maxAmmo);
+        }
     }
+    
 
     switchWeapon() {
-        this.currentWeaponIndex = (this.currentWeaponIndex + 1) % this.weapons.length;
-        this.autofireEvent.remove();  // Remove the current autofire event
-        // Add a new one with updated cooldown
+        // Find the next weapon in the array
+        const nextWeaponIndex = (this.weapons.indexOf(this.currentWeapon) + 1) % this.weapons.length;
+        this.currentWeapon = this.weapons[nextWeaponIndex];
+    
+        // Update the autofire event with the new weapon's cooldown
+        this.autofireEvent.remove();
         this.autofireEvent = this.scene.time.addEvent({
-            delay: this.weapons[this.currentWeaponIndex].cooldown,
-            callback: this.fireWeapon,
-            callbackScope: this,
+            delay: this.currentWeapon.cooldown, 
+            callback: this.fireWeapon, 
+            callbackScope: this, 
             loop: true
         });
-        this.weaponDisplayText.setText(this.weapons[this.currentWeaponIndex].name);
+        this.weaponDisplayText.setText(this.currentWeapon.name);
+        this.ammoDisplayText.setText(this.currentWeapon.currentAmmo + "/" + this.currentWeapon.maxAmmo);
     }
+    
 }
 
 // hero-specific state classes

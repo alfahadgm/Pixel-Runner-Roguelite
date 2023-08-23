@@ -34,6 +34,22 @@ class CharacterFSM extends Phaser.Scene {
             classType: Bullet,
             removeCallback: (bullet) => bullet.scene.sys.updateList.remove(bullet)
         });
+        // Create an enemy instance.
+        this.enemy = new Enemy(this, 400, 300);
+
+        // Set up collision detection between bullets and the enemy.
+        this.physics.add.collider(this.hero.currentWeapon.bullets, this.enemy, this.bulletHitEnemy, null, this);
+    }
+
+    bulletHitEnemy(enemy, bullet) {
+        // Destroy the bullet.
+        bullet.destroy();
+
+        // Calculate damage based on weapon stats (assuming you have a getDamage() method in your weapon stats).
+        const damageAmount = this.hero.currentWeapon.weaponStats.getDamage();
+
+        // Let the enemy take damage.
+        enemy.takeDamage(damageAmount);
     }
 
     initWorldView() {

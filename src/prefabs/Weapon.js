@@ -1,10 +1,11 @@
-// Weapon.js
+
 class Weapon {
-    constructor(scene, color, cooldown, name) {
+    constructor(scene, weaponStats, color, cooldown, name) {
         this.scene = scene;
-        this.color = color; // Color of the weapon bullet
-        this.name = name;   // Name of the weapon
-        this.cooldown = cooldown; // Assign cooldown to the weapon
+        this.weaponStats = weaponStats || new WeaponStats();
+        this.color = color;
+        this.name = name;
+        this.cooldown = cooldown;
         this.bullets = this.scene.add.group({
             classType: Bullet,
             removeCallback: (bullet) => bullet.scene.sys.updateList.remove(bullet)
@@ -104,5 +105,75 @@ class Weapon {
         if (index > -1) {
             this.lineBullets.splice(index, 1);
         }
+    }
+}
+
+// WeaponFactory.js
+class WeaponFactory {
+    static getWeapons(scene) {
+        const pistolStats = new WeaponStats(20, 1.5, 5.0, 60.0);
+        const sniperStats = new WeaponStats(50, 2.0, 10.0, 100.0);
+
+        return [
+            new Pistol(scene, pistolStats, 500),
+            new Sniper(scene, sniperStats, 2000),
+        ];
+    }
+}
+
+
+class Pistol extends Weapon {
+    constructor(scene, weaponStats, cooldown, name) {
+        super(scene, weaponStats, 0xFFFF00, cooldown, name || "Pistol");
+        this.maxAmmo = 15;
+        this.currentAmmo = this.maxAmmo;
+        this.reloadTime = 2000; // 2 seconds
+        this.isReloading = false;
+    }
+
+    fire(x, y, direction, hero) {
+        if (this.currentAmmo > 0) {
+            super.fire(x, y, direction, hero);
+            this.currentAmmo--;
+        } else {
+            console.log('Out of ammo! Need to reload.');
+        }
+    }
+
+    reload() {
+        this.isReloading = true;
+        setTimeout(() => {
+            this.currentAmmo = this.maxAmmo;
+            console.log('Pistol reloaded.');
+            this.isReloading = false;
+        }, this.reloadTime);
+    }
+}
+
+class Sniper extends Weapon {
+    constructor(scene, weaponStats, cooldown, name) {
+        super(scene, weaponStats, 0xFF0000, cooldown, name || "Sniper");
+        this.maxAmmo = 5;
+        this.currentAmmo = this.maxAmmo;
+        this.reloadTime = 5000; // 5 seconds
+        this.isReloading = false;
+    }
+
+    fire(x, y, direction, hero) {
+        if (this.currentAmmo > 0) {
+            super.fire(x, y, direction, hero);
+            this.currentAmmo--;
+        } else {
+            console.log('Out of ammo! Need to reload.');
+        }
+    }
+
+    reload() {
+        this.isReloading = true;
+        setTimeout(() => {
+            this.currentAmmo = this.maxAmmo;
+            console.log('Sniper reloaded.');
+            this.isReloading = false;
+        }, this.reloadTime);
     }
 }
