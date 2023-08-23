@@ -24,6 +24,7 @@ class AssetLoader {
 
         // Load additional sprites
         this.loadImage("bullet", "bullet.png");
+        this.loadImage("enemy", "enemy.png");
 
     }
 

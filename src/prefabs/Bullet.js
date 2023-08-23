@@ -1,68 +1,46 @@
-
-class Bullet extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, x, y) {
-        super(scene, x, y, 'bullet');
-        scene.add.existing(this);  // Add the bullet to the scene's display list
-        scene.physics.world.enable(this);
-
-        this.setCollideWorldBounds(false);  // Turn off static world bounds
-        this.body.onWorldBounds = true;     // Ensure world bounds event is enabled
-        this.body.world.on('worldbounds', this.worldBoundsHandler, this); // Add an event handler
-        this.speed = 800;
+class Bullet {
+    constructor(scene, weaponStats, x, y, texture) {
+        this.scene = scene;
+        this.weaponStats = weaponStats; 
+        this.sprite = this.scene.physics.add.sprite(x, y, texture).setDepth(2);
+        this.sprite.setActive(false);
+        this.sprite.setVisible(false);
+        let radius = Math.max(20) / 2;
+        this.sprite.body.setCircle(radius);
+        const offsetX = (this.sprite.width - radius * 2) / 2;
+        const offsetY = (this.sprite.height - radius * 2) / 2;
+        this.sprite.body.setOffset(offsetX, offsetY);
     }
 
-    fire(x, y, direction, hero) {
-        console.log('Weapon: Fire function called with direction:', direction);
-        // Adjust bullet boundaries based on hero's position
-        this.worldBounds = {
-            left: hero.x - (hero.scene.game.config.width / 2),
-            right: hero.x + (hero.scene.game.config.width / 2),
-            top: hero.y - (hero.scene.game.config.height / 2),
-            bottom: hero.y + (hero.scene.game.config.height / 2)
-        };
-        
-        this.setRotation(this.calculateRotation(direction)); // Algorithmically set rotation
+    fire(x, y, direction) {
+        this.sprite.setActive(true);
+        this.sprite.setVisible(true);
+        this.sprite.setPosition(x, y);
 
-        switch (direction) {
-            case 'up':
-                this.setVelocityY(-this.speed);
+        let velocity = {
+            x: DIRECTIONS[direction].velocityX || 0,
+            y: DIRECTIONS[direction].velocityY || 0
+        };
+
+        velocity.x *= this.weaponStats.bulletSpeed; 
+        velocity.y *= this.weaponStats.bulletSpeed; 
+
+        this.sprite.setVelocity(velocity.x, velocity.y);
+
+        // Set rotation angle based on the direction
+        switch(direction) {
+            case 'right':
+                this.sprite.setAngle(0);
                 break;
-            case 'down':
-                this.setVelocityY(this.speed);
+            case 'up':
+                this.sprite.setAngle(-90);
                 break;
             case 'left':
-                this.setVelocityX(-this.speed);
+                this.sprite.setAngle(180);
                 break;
-            case 'right':
-                this.setVelocityX(this.speed);
+            case 'down':
+                this.sprite.setAngle(90);
                 break;
         }
-    }
-
-    calculateRotation(direction) {
-        const angles = {
-            'right': 0,
-            'up': -Math.PI / 2,
-            'left': Math.PI,
-            'down': Math.PI / 2
-        };
-
-        return angles[direction] || 0;  // Default to 0 if direction is not recognized
-    }
-
-    preUpdate(time, delta) {
-        super.preUpdate(time, delta);
-
-        // Check if bullet has crossed world boundaries based on hero's position
-        if (this.x < this.worldBounds.left || this.x > this.worldBounds.right ||
-            this.y < this.worldBounds.top || this.y > this.worldBounds.bottom) {
-            this.destroy();
-        }
-    }
-
-    worldBoundsHandler(body) {
-        if (body.gameObject === this) {
-            this.destroy();
-        }
-    }
+    }  
 }
