@@ -30,12 +30,49 @@ class GameScene extends Phaser.Scene {
         if (this.hero.currentWeapon && this.hero.currentWeapon.bullets) {
             console.log('Number of bullets:', this.hero.currentWeapon.bullets.getLength());
         }
-        
+       // Assuming you've loaded the 'enemy' texture
+       this.enemy = new Enemy(this, 0, 0); // Positioned at (400, 300)
+
+       // Check for collisions between bullet and enemy
+       this.physics.add.overlap(this.hero, this.enemy, this.heroHitenemy, null, this);
+
+       console.log('enemy created at', this.enemy.x, this.enemy.y);
+
         this.heroFSM = this.createHeroFSM();
         this.assetLoader.createAllAnimations();
         this.initKeyboardControls();
         this.cameras.main.startFollow(this.hero, true, this.cameraLerpFactor, this.cameraLerpFactor);
     }
+
+    bulletHitenemy(bullet, enemy) {
+        const damage = bullet.weaponStats.getDamage(); 
+        this.scene.displayDamageText(enemy.x, enemy.y, damage, bullet.weaponStats.isCriticalHit);
+        bullet.destroy();
+    }
+
+    displayDamageText(x, y, damage, isCritical) {
+        const style = isCritical ? { color: 'red', fontSize: '16px' } : { color: 'white', fontSize: '16px' };
+        const damageText = this.add.text(x, y, `${damage}`, style).setOrigin(0.5, 0.5); // Centering the text
+        
+        // Animate the text: Move upwards while fading out over 0.5 seconds
+        this.tweens.add({
+            targets: damageText,
+            y: y - 50,     // Move 50 pixels up
+            alpha: 0,      // Fade out
+            duration: 500, // 0.5 seconds
+            onComplete: () => {
+                damageText.destroy();
+            }
+        });
+    }
+
+    heroHitenemy(hero, enemy) {
+        if(this.heroFSM.state != 'dash') {
+            hero.setTint(0xFF0000);
+            this.heroIsTouchingenemy = true;
+        }
+    }
+    
 
     initWorldView() {
         const centerOffsetX = (this.chunkSize * this.tileSize) / 2;
@@ -93,6 +130,18 @@ class GameScene extends Phaser.Scene {
                     bullet.update();
                 }
             });
+        }
+
+        // Check for hero and enemy overlap
+        const isOverlapping = Phaser.Geom.Intersects.RectangleToRectangle(this.hero.getBounds(), this.enemy.getBounds());
+        
+        if (this.heroIsTouchingenemy && !isOverlapping) {
+            this.hero.clearTint();
+            this.heroIsTouchingenemy = false;
+        }
+
+        if (this.enemy && this.hero) {
+            this.enemy.follow(this.hero);
         }
     }
 

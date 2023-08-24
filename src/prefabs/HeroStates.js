@@ -104,7 +104,6 @@ class MoveState extends State {
 
 class SwingState extends State {
     enter(scene, hero) {
-        hero.setVelocity(0);
         hero.anims.play(`swing-${hero.direction}`);
         hero.once('animationcomplete', () => {
             this.stateMachine.transition('idle');
@@ -114,7 +113,6 @@ class SwingState extends State {
 
 class DashState extends State {
     enter(scene, hero) {
-        hero.setVelocity(0);
         hero.anims.play(`swing-${hero.direction}`);
         hero.setTint(0x00AA00);     // turn green
         switch(hero.direction) {
@@ -142,30 +140,6 @@ class DashState extends State {
 
 class HurtState extends State {
     enter(scene, hero) {
-        hero.setVelocity(0);
-        hero.anims.play(`walk-${hero.direction}`);
-        hero.anims.stop();
-        hero.setTint(0xFF0000);     // turn red
-        // create knockback by sending body in direction opposite facing direction
-        switch(hero.direction) {
-            case 'up':
-                hero.setVelocityY(hero.heroVelocity*2);
-                break;
-            case 'down':
-                hero.setVelocityY(-hero.heroVelocity*2);
-                break;
-            case 'left':
-                hero.setVelocityX(hero.heroVelocity*2);
-                break;
-            case 'right':
-                hero.setVelocityX(-hero.heroVelocity*2);
-                break;
-        }
-
-        // set recovery timer
-        scene.time.delayedCall(hero.hurtTimer, () => {
-            hero.clearTint();
-            this.stateMachine.transition('idle');
-        });
+        hero.setTint(0xFF0000);
     }
 }

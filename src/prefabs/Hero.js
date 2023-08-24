@@ -7,7 +7,7 @@ class Hero extends Phaser.Physics.Arcade.Sprite {
         // Add hero to scene
         scene.add.existing(this);
         scene.physics.add.existing(this);
-        
+
         // Hero properties
         this.scene = scene;
         this.direction = direction;
@@ -16,6 +16,7 @@ class Hero extends Phaser.Physics.Arcade.Sprite {
         this.hurtTimer = 250;
         this.heroStats = new HeroStats();
         this.lastFired = 0;
+        this.body.setSize(15,20,true);
 
         // Weapon properties
         this.initializeWeapons();
@@ -61,7 +62,7 @@ class Hero extends Phaser.Physics.Arcade.Sprite {
     }
 
     fireWeapon() {
-        console.log('fireWeapon method of Hero called');
+        console.log('Trying to fire with', this.currentWeapon.name);
         const currentTime = this.scene.time.now;
     
         if (this.canFire(currentTime)) {
@@ -110,11 +111,14 @@ class Hero extends Phaser.Physics.Arcade.Sprite {
         this.currentWeapon = this.weapons[this.currentWeaponIndex];
 
         this.setupAutoFireEvent();
-        
+        // Reset the lastFired timestamp to allow immediate firing.
+        this.lastFired = this.scene.time.now - this.currentWeapon.cooldown;
         this.weaponDisplayText.setText(this.currentWeapon.name);
         this.ammoDisplayText.setText(this.formatAmmoText());
         console.log("Switched to weapon:", this.currentWeapon.name, "with cooldown:", this.currentWeapon.cooldown);
     }
+
+
     
 }
 

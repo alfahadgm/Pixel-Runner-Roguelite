@@ -1,46 +1,63 @@
-class Bullet {
+class Bullet extends Phaser.Physics.Arcade.Sprite {
+
     constructor(scene, weaponStats, x, y, texture) {
+        super(scene, x, y, texture);
+
+        // Store reference to scene and weapon stats
         this.scene = scene;
-        this.weaponStats = weaponStats; 
-        this.sprite = this.scene.physics.add.sprite(x, y, texture).setDepth(2);
-        this.sprite.setActive(false);
-        this.sprite.setVisible(false);
-        let radius = Math.max(20) / 2;
-        this.sprite.body.setCircle(radius);
-        const offsetX = (this.sprite.width - radius * 2) / 2;
-        const offsetY = (this.sprite.height - radius * 2) / 2;
-        this.sprite.body.setOffset(offsetX, offsetY);
+        this.weaponStats = weaponStats;
+
+        // Add this bullet to the scene's physics world
+        this.scene.physics.world.enable(this);
+        this.scene.add.existing(this);
+
+        // Set bullet properties
+        this.setDepth(2);
+
+        // Calculate the bullet's circular collision shape
+        const radius = 10;
+        this.body.setCircle(radius);
+        this.body.setOffset(
+            (this.width - radius * 2) / 2, 
+            (this.height - radius * 2) / 2
+        );
+        console.log('Bullet collision shape set with radius:', radius);
+
+        // Set the bullet to be inactive by default
+        this.setActive(false).setVisible(false);
     }
 
     fire(x, y, direction) {
-        this.sprite.setActive(true);
-        this.sprite.setVisible(true);
-        this.sprite.setPosition(x, y);
+        // Activate bullet and set its position
+        this.setActive(true).setVisible(true).setPosition(x, y);
+    
+        // If aiming at the enemy is the new default behavior
+        const targetenemy = this.scene.enemy;
+        const dirX = targetenemy.x - x;
+        const dirY = targetenemy.y - y;
+        const distance = Math.sqrt(dirX * dirX + dirY * dirY);
+        
+        // Normalize the vector
+        const normalizedDirX = dirX / distance;
+        const normalizedDirY = dirY / distance;
+    
+        this.setVelocity(
+            normalizedDirX * this.weaponStats.bulletSpeed,
+            normalizedDirY * this.weaponStats.bulletSpeed
+        );
+        console.log('Bullet velocity set to:', 
+            normalizedDirX * this.weaponStats.bulletSpeed, 
+            normalizedDirY * this.weaponStats.bulletSpeed
+        );
+    
+        // Set the bullet's rotation angle to point to the target
+        const angle = Phaser.Math.RadToDeg(Math.atan2(dirY, dirX));
+        this.setAngle(angle);
+        console.log('Bullet angle set to:', angle);
+    }
+    
 
-        let velocity = {
-            x: DIRECTIONS[direction].velocityX || 0,
-            y: DIRECTIONS[direction].velocityY || 0
-        };
-
-        velocity.x *= this.weaponStats.bulletSpeed; 
-        velocity.y *= this.weaponStats.bulletSpeed; 
-
-        this.sprite.setVelocity(velocity.x, velocity.y);
-
-        // Set rotation angle based on the direction
-        switch(direction) {
-            case 'right':
-                this.sprite.setAngle(0);
-                break;
-            case 'up':
-                this.sprite.setAngle(-90);
-                break;
-            case 'left':
-                this.sprite.setAngle(180);
-                break;
-            case 'down':
-                this.sprite.setAngle(90);
-                break;
-        }
-    }  
+    destroyBullet() {
+        this.destroy(); 
+    }
 }

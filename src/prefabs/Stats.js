@@ -47,7 +47,7 @@ class WeaponStats {
         this.damage = damage;
         this.bulletSpeed = bulletSpeed;
         this.criticalChance = criticalChance; // 0.1 is 10% chance
-        this.criticalDamage = criticalDamage; // 2 times the damage
+        this.criticalDamage = criticalDamage; // Multiplier for critical damage
     }
 
     modifyAttributeByPercentage(attribute, percentage) {
@@ -67,12 +67,10 @@ class WeaponStats {
     }
 
     getDamage() {
-        const isCriticalHit = Math.random() < this.criticalChance;
-
-        if (isCriticalHit) {
-            return this.damage * this.criticalDamage;
-        } else {
-            return this.damage;
-        }
+        this.isCriticalHit = Math.random() < this.criticalChance;
+        const finalDamage = this.isCriticalHit ? this.damage * this.criticalDamage : this.damage;
+        
+        console.log("Damage: " + finalDamage);
+        return finalDamage;
     }
 }
