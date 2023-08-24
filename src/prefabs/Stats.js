@@ -43,11 +43,12 @@ class HeroStats {
 
 //WeaponStats.js
 class WeaponStats {
-    constructor(damage = 10, bulletSpeed = 1, criticalChance = 0.1, criticalDamage = 2) {
+    constructor(damage, bulletSpeed, criticalChance, criticalDamage, maxRange) {
         this.damage = damage;
         this.bulletSpeed = bulletSpeed;
         this.criticalChance = criticalChance; // 0.1 is 10% chance
         this.criticalDamage = criticalDamage; // Multiplier for critical damage
+        this.maxRange = maxRange;
     }
 
     modifyAttributeByPercentage(attribute, percentage) {

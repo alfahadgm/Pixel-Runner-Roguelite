@@ -26,7 +26,6 @@ class Hero extends Phaser.Physics.Arcade.Sprite {
         this.weapons = WeaponFactory.getWeapons(this.scene);
         this.currentWeaponIndex = 0;
         this.currentWeapon = this.weapons[this.currentWeaponIndex];
-        
         // Display current weapon and ammo
         this.weaponDisplayText = this.setupText(5, 10, this.currentWeapon.name);
         this.ammoDisplayText = this.setupText(5, 20, this.formatAmmoText());
@@ -60,11 +59,8 @@ class Hero extends Phaser.Physics.Arcade.Sprite {
         });
         
     }
-
-    fireWeapon() {
-        
+    fireWeapon() {    
         const currentTime = this.scene.time.now;
-    
         if (this.canFire(currentTime)) {
             if (this.currentWeapon.currentMagazine <= 0 && !this.currentWeapon.isReloading) {
                 this.reloadAndSetCooldown(currentTime);
@@ -86,13 +82,10 @@ class Hero extends Phaser.Physics.Arcade.Sprite {
         this.lastFired = currentTime;  // Update the timestamp even if reloading
     }
     
-    
-
     fireBasedOnDirection() {
         let {x, y} = this.getDirectionOffsets();
         this.currentWeapon.fire(this.x + x, this.y + y, this.direction, this);
     }
-
     getDirectionOffsets() {
         let offsets = {x: 0, y: 0};
         
@@ -117,8 +110,5 @@ class Hero extends Phaser.Physics.Arcade.Sprite {
         this.ammoDisplayText.setText(this.formatAmmoText());
         
     }
-
-
-    
 }
 

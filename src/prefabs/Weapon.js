@@ -21,28 +21,47 @@ class Weapon {
     }
 
     fire(x, y) {
-        // Assuming the Colliderenemy object is accessible via this.scene.enemy
-        const direction = this.getDirectionToTarget(x, y, this.scene.enemy.x, this.scene.enemy.y);
-        const bullet = new Bullet(this.scene, this.weaponStats, x, y, 'bullet');
-        this.scene.physics.add.collider(bullet, this.scene.enemy, this.scene.bulletHitenemy, null, this);
-        bullet.fire(x, y, direction);
-    }
+        // Find the nearest enemy
+        const nearestEnemy = this.scene.findNearestEnemy(this.scene.hero);
 
+        if (nearestEnemy) {
+            // Calculate distance to the nearest enemy
+            const distanceToEnemy = Math.sqrt((nearestEnemy.x - x) ** 2 + (nearestEnemy.y - y) ** 2);
+
+            // Check if the distance to the nearest enemy is within the weapon's max range
+            if (distanceToEnemy <= this.weaponStats.maxRange) {
+                // Get the direction to the nearest enemy
+                const direction = this.getDirectionToTarget(x, y, nearestEnemy.x, nearestEnemy.y);     
+                const bullet = new Bullet(this.scene, this.weaponStats, x, y, 'bullet');
+                this.scene.physics.add.collider(bullet, this.scene.enemyManager.enemies, this.scene.bulletHitenemy, null, this);
+                
+                if (this instanceof Firearm) {
+                    this.currentMagazine--;  // Decrease magazine only if firing conditions are met
+                }
+                
+                bullet.fire(x, y, direction);
+            }
+        }
+    }
+    
     getDirectionToTarget(sourceX, sourceY, targetX, targetY) {
         const diffX = targetX - sourceX;
         const diffY = targetY - sourceY;
         const magnitude = Math.sqrt(diffX * diffX + diffY * diffY);
-        return { velocityX: diffX / magnitude, velocityY: diffY / magnitude };
-    }    
+        return {
+            velocityX: diffX / magnitude,
+            velocityY: diffY / magnitude
+        };
+    }      
 
 }
 
 class WeaponFactory {
     static getWeapons(scene) {
         //damage,bulletSpeed,criticalChance,criticalDamage
-        let pistolStats = new WeaponStats(20, 300, 0.1, 2);
-        let sniperStats = new WeaponStats(200, 500, 0.3, 2);
-        let rifleStats = new WeaponStats(15, 300, 0.1, 2);
+        let pistolStats = new WeaponStats(20, 300, 0.1, 2, 300); // Example max range of 300
+        let sniperStats = new WeaponStats(200, 500, 0.3, 2, 1000); // Example max range of 1000
+        let rifleStats = new WeaponStats(15, 300, 0.1, 2, 500); // Example max range of 500
         
         return [
             new Pistol(scene, pistolStats, 0xFFFF00, 500, "Pistol"),
@@ -68,7 +87,6 @@ class Firearm extends Weapon {
             this.outOfAmmoHandler();
             return;  // Don't fire
         }
-        this.currentMagazine--;
         super.fire(x, y, direction);
     }
 

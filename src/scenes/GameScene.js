@@ -1,3 +1,4 @@
+
 class GameScene extends Phaser.Scene {
     constructor() {
         super("GameScene");
@@ -6,6 +7,7 @@ class GameScene extends Phaser.Scene {
         this.tileSize = 16;
         this.chunkManager = new ChunkManager(this);
         this.assetLoader = new AssetLoader(this);
+
         this.cameraLerpFactor = 0.1;  
     }
 
@@ -19,25 +21,16 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
-        
         this.initWorldView();
         this.hero = new Hero(this, this.followPoint.x, this.followPoint.y, 'hero', 0, 'down').setDepth(2);
-    
         
-        if (this.hero.currentWeapon) {
-            
-        }
-        if (this.hero.currentWeapon && this.hero.currentWeapon.bullets) {
-            
-        }
-       // Assuming you've loaded the 'enemy' texture
-       this.enemy = new Enemy(this, 0, 0); // Positioned at (400, 300)
+        this.enemyManager = new EnemyManager(this); // Make enemyManager a property of the class.
+        
+        this.enemyManager.startWave(0);
 
-       // Check for collisions between bullet and enemy
-       this.physics.add.overlap(this.hero, this.enemy, this.heroHitenemy, null, this);
-
-       
-
+        // Check for collisions between bullet and enemy
+        this.physics.add.overlap(this.hero, this.enemyManager.enemies, this.heroHitenemy, null, this);
+       // this.physics.add.collider(this.hero.currentWeapon.bullets, this.enemyManager.enemies, this.bulletHitenemy, null, this);
         this.heroFSM = this.createHeroFSM();
         this.assetLoader.createAllAnimations();
         this.initKeyboardControls();
@@ -45,15 +38,16 @@ class GameScene extends Phaser.Scene {
     }
 
     bulletHitenemy(bullet, enemy) {
-        const damage = bullet.weaponStats.getDamage(); 
+        const damage = bullet.weaponStats.getDamage(); // Ensure your weaponStats has a method getDamage()
+        enemy.decreaseHealth(damage);
         this.scene.displayDamageText(enemy.x, enemy.y, damage, bullet.weaponStats.isCriticalHit);
-        bullet.destroy();
+        bullet.destroyBullet(); // Using the bullet's destroyBullet method
     }
 
     displayDamageText(x, y, damage, isCritical) {
         const style = isCritical ? { color: 'red', fontSize: '16px' } : { color: 'white', fontSize: '16px' };
         const damageText = this.add.text(x, y, `${damage}`, style).setOrigin(0.5, 0.5); // Centering the text
-        
+        damageText.setDepth(10)
         // Animate the text: Move upwards while fading out over 0.5 seconds
         this.tweens.add({
             targets: damageText,
@@ -66,7 +60,23 @@ class GameScene extends Phaser.Scene {
         });
     }
 
+    findNearestEnemy(hero) {
+        let nearestEnemy = null;
+        let nearestDistance = Infinity;
+    
+        this.enemyManager.enemies.getChildren().forEach(enemy => {
+            const distance = Phaser.Math.Distance.Between(hero.x, hero.y, enemy.x, enemy.y);
+            if (distance < nearestDistance) {
+                nearestDistance = distance;
+                nearestEnemy = enemy;
+            }
+        });
+    
+        return nearestEnemy;
+    }
+
     heroHitenemy(hero, enemy) {
+        
         if(this.heroFSM.state != 'dash') {
             hero.setTint(0xFF0000);
             this.heroIsTouchingenemy = true;
@@ -127,22 +137,17 @@ class GameScene extends Phaser.Scene {
         if (this.hero.currentWeapon && this.hero.currentWeapon.bullets) {
             this.hero.currentWeapon.bullets.getChildren().forEach(bullet => {
                 if (bullet && typeof bullet.update === 'function') {
+
                     bullet.update();
                 }
             });
         }
 
-        // Check for hero and enemy overlap
-        const isOverlapping = Phaser.Geom.Intersects.RectangleToRectangle(this.hero.getBounds(), this.enemy.getBounds());
-        
-        if (this.heroIsTouchingenemy && !isOverlapping) {
-            this.hero.clearTint();
-            this.heroIsTouchingenemy = false;
-        }
+        this.enemyManager.updateEnemies(this.hero);
 
-        if (this.enemy && this.hero) {
-            this.enemy.follow(this.hero);
-        }
+     
+      
+
     }
 
     executeDebuggerReport() {

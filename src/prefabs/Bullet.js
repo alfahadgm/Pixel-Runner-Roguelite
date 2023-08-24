@@ -10,6 +10,7 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
         // Add this bullet to the scene's physics world
         this.scene.physics.world.enable(this);
         this.scene.add.existing(this);
+        this.setInteractive();
 
         // Set bullet properties
         this.setDepth(2);
@@ -25,36 +26,32 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
 
         // Set the bullet to be inactive by default
         this.setActive(false).setVisible(false);
+        
+        
+        
+    }
+
+    preDestroy() {
+        this.scene.physics.world.disable(this);
     }
 
     fire(x, y, direction) {
         // Activate bullet and set its position
         this.setActive(true).setVisible(true).setPosition(x, y);
-    
-        // If aiming at the enemy is the new default behavior
-        const targetenemy = this.scene.enemy;
-        const dirX = targetenemy.x - x;
-        const dirY = targetenemy.y - y;
-        const distance = Math.sqrt(dirX * dirX + dirY * dirY);
         
-        // Normalize the vector
-        const normalizedDirX = dirX / distance;
-        const normalizedDirY = dirY / distance;
-    
+        // Use the given direction for bullet movement
         this.setVelocity(
-            normalizedDirX * this.weaponStats.bulletSpeed,
-            normalizedDirY * this.weaponStats.bulletSpeed
+            direction.velocityX * this.weaponStats.bulletSpeed,
+            direction.velocityY * this.weaponStats.bulletSpeed
         );
         
-            normalizedDirX * this.weaponStats.bulletSpeed, 
-            normalizedDirY * this.weaponStats.bulletSpeed
-        );
-    
-        // Set the bullet's rotation angle to point to the target
-        const angle = Phaser.Math.RadToDeg(Math.atan2(dirY, dirX));
+        // Calculate the angle based on the direction
+        const angle = Phaser.Math.RadToDeg(Math.atan2(direction.velocityY, direction.velocityX));
+        
+        // Set the bullet's rotation angle to the calculated angle
         this.setAngle(angle);
-        
     }
+    
     
 
     destroyBullet() {
