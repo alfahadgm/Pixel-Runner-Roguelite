@@ -5,9 +5,9 @@ class GameScene extends Phaser.Scene {
         this.assetPath = './assets/';
         this.chunkSize = 16;
         this.tileSize = 16;
+        this.totalTime = 0; 
         this.chunkManager = new ChunkManager(this);
         this.assetLoader = new AssetLoader(this);
-
         this.cameraLerpFactor = 0.1;  
     }
 
@@ -25,9 +25,8 @@ class GameScene extends Phaser.Scene {
         this.hero = new Hero(this, this.followPoint.x, this.followPoint.y, 'hero', 0, 'down').setDepth(2);
         
         this.enemyManager = new EnemyManager(this); // Make enemyManager a property of the class.
-        
-        this.enemyManager.startWave(0);
-
+        this.ui = new UI(this); // Make enemyManager a property of the class.
+        this.utils = new Utils(this); // Make enemyManager a property of the class.
         // Check for collisions between bullet and enemy
         this.physics.add.overlap(this.hero, this.enemyManager.enemies, this.heroHitenemy, null, this);
        // this.physics.add.collider(this.hero.currentWeapon.bullets, this.enemyManager.enemies, this.bulletHitenemy, null, this);
@@ -145,6 +144,9 @@ class GameScene extends Phaser.Scene {
         }
 
         this.enemyManager.updateEnemies(this.hero);
+        this.enemyManager.manageWaves(delta)
+        this.totalTime += delta / 1000; 
+        this.ui.updateTimerDisplay(); // We'll create this in the UI class
 
      
       
