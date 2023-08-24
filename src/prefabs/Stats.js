@@ -37,7 +37,7 @@ class HeroStats {
 
     levelUp() {
         this.level++;
-        console.log(`Leveled up to level ${this.level}!`);
+        
     }
 }
 
@@ -70,7 +70,7 @@ class WeaponStats {
         this.isCriticalHit = Math.random() < this.criticalChance;
         const finalDamage = this.isCriticalHit ? this.damage * this.criticalDamage : this.damage;
         
-        console.log("Damage: " + finalDamage);
+        
         return finalDamage;
     }
 }

@@ -43,7 +43,7 @@ class WeaponFactory {
         let pistolStats = new WeaponStats(20, 300, 0.1, 2);
         let sniperStats = new WeaponStats(200, 500, 0.3, 2);
         let rifleStats = new WeaponStats(15, 300, 0.1, 2);
-        console.log('Weapons generated.');
+        
         return [
             new Pistol(scene, pistolStats, 0xFFFF00, 500, "Pistol"),
             new Sniper(scene, sniperStats, 0xFF0000, 2000, "Sniper"),
@@ -81,7 +81,7 @@ class Firearm extends Weapon {
     reload() {
         if (this.ammo <= 0) {
             this.isOutofAmmo = true;
-            console.log(`${this.name} has no ammo left.`);
+            
         } else if (!this.isOutofAmmo) {
             this.isReloading = true;
             this.scene.time.delayedCall(this.reloadTime, () => {

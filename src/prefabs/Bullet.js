@@ -21,7 +21,7 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
             (this.width - radius * 2) / 2, 
             (this.height - radius * 2) / 2
         );
-        console.log('Bullet collision shape set with radius:', radius);
+        
 
         // Set the bullet to be inactive by default
         this.setActive(false).setVisible(false);
@@ -45,7 +45,7 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
             normalizedDirX * this.weaponStats.bulletSpeed,
             normalizedDirY * this.weaponStats.bulletSpeed
         );
-        console.log('Bullet velocity set to:', 
+        
             normalizedDirX * this.weaponStats.bulletSpeed, 
             normalizedDirY * this.weaponStats.bulletSpeed
         );
@@ -53,7 +53,7 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
         // Set the bullet's rotation angle to point to the target
         const angle = Phaser.Math.RadToDeg(Math.atan2(dirY, dirX));
         this.setAngle(angle);
-        console.log('Bullet angle set to:', angle);
+        
     }
     
 

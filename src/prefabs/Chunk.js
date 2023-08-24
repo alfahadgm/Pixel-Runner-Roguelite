@@ -14,7 +14,7 @@ class Chunk {
             this.clearTiles();
         }
         this.isLoaded = false;
-        console.log(`Chunk initialized at: (${this.x}, ${this.y})`);
+        
     }
 
     clearTiles() {
@@ -30,7 +30,7 @@ class Chunk {
             this.tiles.clear(false, false);  // Set destroy parameter to false to avoid destroying the sprite.
             Chunk.chunkPool.push(this); 
             this.isLoaded = false;
-            console.log(`Unloading chunk at: (${this.x}, ${this.y})`);
+            
         }
     }
     unloadFromMemory() {
@@ -41,7 +41,7 @@ class Chunk {
             });
             this.tiles.clear(true, true); // Clearing the children and destroying them
             this.isLoaded = false;
-            console.log(`Unloading chunk from memory at: (${this.x}, ${this.y})`);
+            
         }
     }
 

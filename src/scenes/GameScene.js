@@ -19,16 +19,16 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
-        console.log('GameScene create method called');
+        
         this.initWorldView();
         this.hero = new Hero(this, this.followPoint.x, this.followPoint.y, 'hero', 0, 'down').setDepth(2);
     
-        console.log('Current weapon:', this.hero.currentWeapon);
+        
         if (this.hero.currentWeapon) {
-            console.log('Bullets in the current weapon:', this.hero.currentWeapon.bullets);
+            
         }
         if (this.hero.currentWeapon && this.hero.currentWeapon.bullets) {
-            console.log('Number of bullets:', this.hero.currentWeapon.bullets.getLength());
+            
         }
        // Assuming you've loaded the 'enemy' texture
        this.enemy = new Enemy(this, 0, 0); // Positioned at (400, 300)
@@ -36,7 +36,7 @@ class GameScene extends Phaser.Scene {
        // Check for collisions between bullet and enemy
        this.physics.add.overlap(this.hero, this.enemy, this.heroHitenemy, null, this);
 
-       console.log('enemy created at', this.enemy.x, this.enemy.y);
+       
 
         this.heroFSM = this.createHeroFSM();
         this.assetLoader.createAllAnimations();

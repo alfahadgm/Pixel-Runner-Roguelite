@@ -48,7 +48,7 @@ class Hero extends Phaser.Physics.Arcade.Sprite {
 
     setupAutoFireEvent() {
         if (this.autofireEvent) {
-            console.log("Removing existing autofire event");
+            
             this.autofireEvent.remove();
         }
     
@@ -58,11 +58,11 @@ class Hero extends Phaser.Physics.Arcade.Sprite {
             callbackScope: this,
             loop: true
         });
-        console.log("New autofire event set with delay:", this.currentWeapon.cooldown);
+        
     }
 
     fireWeapon() {
-        console.log('Trying to fire with', this.currentWeapon.name);
+        
         const currentTime = this.scene.time.now;
     
         if (this.canFire(currentTime)) {
@@ -82,7 +82,7 @@ class Hero extends Phaser.Physics.Arcade.Sprite {
     
     reloadAndSetCooldown(currentTime) {
         this.currentWeapon.reload();
-        console.log("Hero Trying to Reload");
+        
         this.lastFired = currentTime;  // Update the timestamp even if reloading
     }
     
@@ -115,7 +115,7 @@ class Hero extends Phaser.Physics.Arcade.Sprite {
         this.lastFired = this.scene.time.now - this.currentWeapon.cooldown;
         this.weaponDisplayText.setText(this.currentWeapon.name);
         this.ammoDisplayText.setText(this.formatAmmoText());
-        console.log("Switched to weapon:", this.currentWeapon.name, "with cooldown:", this.currentWeapon.cooldown);
+        
     }
 
 

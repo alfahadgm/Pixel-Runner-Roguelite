@@ -6,7 +6,7 @@ class Debugger {
     }
 
     logPlayerPosition() {
-        console.log(`Player Position: x=${this.hero.x}, y=${this.hero.y}`);
+        
     }
 
     logChunksInfo() {
@@ -19,21 +19,21 @@ class Debugger {
                 unloadedChunks++;
             }
         }
-        console.log(`Total Chunks: ${this.chunkManager.chunks.size}`);
-        console.log(`Loaded Chunks: ${loadedChunks}`);
-        console.log(`Unloaded Chunks: ${unloadedChunks}`);
-        console.log(`Max Allowed Loaded Chunks: ${MAX_LOADED_CHUNKS}`);
+        
+        
+        
+        
     }
 
     logSpritePoolInfo() {
-        console.log(`Sprites in Pool: ${this.scene.spritePool.pool.length}`);
+        
     }
 
     logCurrentChunk() {
         const { chunkSize, tileSize } = this.scene;
         const currentChunkX = Math.floor(this.hero.x / (chunkSize * tileSize));
         const currentChunkY = Math.floor(this.hero.y / (chunkSize * tileSize));
-        console.log(`Current Chunk: x=${currentChunkX}, y=${currentChunkY}`);
+        
     }
 
     executeFullReport() {

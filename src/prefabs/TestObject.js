@@ -17,7 +17,7 @@ class ColliderBlock extends Phaser.Physics.Arcade.Sprite {
             this.health = 0;
             this.handleDestroy();
         }
-        console.log("Block Health is " + this.health)
+        
     }
 
     // Handle block destruction or any other logic you want when health reaches 0
