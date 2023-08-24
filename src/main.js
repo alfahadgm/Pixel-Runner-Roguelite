@@ -16,7 +16,7 @@ const config = {
             Gravity: { x: 0, y: 0 }
         }
     },
-    scene: [ CharacterFSM ]
+    scene: [ GameScene ]
 };
 
 

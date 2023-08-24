@@ -1,6 +1,6 @@
-class CharacterFSM extends Phaser.Scene {
+class GameScene extends Phaser.Scene {
     constructor() {
-        super("characterFSMScene");
+        super("GameScene");
         this.assetPath = './assets/';
         this.chunkSize = 16;
         this.tileSize = 16;
@@ -19,7 +19,7 @@ class CharacterFSM extends Phaser.Scene {
     }
 
     create() {
-        console.log('CharacterFSM create method called');
+        console.log('GameScene create method called');
         this.initWorldView();
         this.hero = new Hero(this, this.followPoint.x, this.followPoint.y, 'hero', 0, 'down').setDepth(2);
     
