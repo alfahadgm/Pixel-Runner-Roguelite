@@ -143,3 +143,6 @@ class HurtState extends State {
         hero.setTint(0xFF0000);
     }
 }
+
+
+

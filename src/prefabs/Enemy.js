@@ -22,16 +22,41 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
     }
 
+
     follow(target) {
-        
         const angle = Phaser.Math.Angle.Between(this.x, this.y, target.x, target.y);
+        const dx = target.x - this.x;
+        const dy = target.y - this.y;
         this.body.setVelocityX(Math.cos(angle) * this.speed);
         this.body.setVelocityY(Math.sin(angle) * this.speed);
+    
+        let animationKey = '';
+    
+        if (Math.abs(dx) > Math.abs(dy)) {
+            // Moving horizontally
+            if (dx > 0) {
+                this.setFlipX(false);
+                animationKey = `${this.texture.key}-walk-right`;
+            } else {
+                this.setFlipX(true);
+                animationKey = `${this.texture.key}-walk-left`;
+            }
+        } else {
+            // Moving vertically
+            if (dy > 0) {
+                animationKey = `${this.texture.key}-walk-down`;
+            } else {
+                animationKey = `${this.texture.key}-walk-up`;
+            }
+        }
+    
+        this.anims.play(animationKey, true);
     }
+    
+        
 
     decreaseHealth(amount) {
         this.health -= amount;
-        console.log("Health : " + this.health)
         if (this.health <= 0) {
             this.health = 0;
             this.handleDestroy();
@@ -45,7 +70,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
 class Enemy1 extends Enemy {
     constructor(scene, x, y) {
-        const ENEMY_TEXTURE = 'enemy1';  // Replace with the actual texture key for enemy1
+        const ENEMY_TEXTURE = 'skeleton';  // Replace with the actual texture key for enemy1
         const ENEMY_HEALTH = 50;
         const ENEMY_DAMAGE = 50;
         const ENEMY_SPEED = 60;
@@ -55,7 +80,7 @@ class Enemy1 extends Enemy {
 
 class Enemy2 extends Enemy {
     constructor(scene, x, y) {
-        const ENEMY_TEXTURE = 'enemy2';  // Replace with the actual texture key for enemy2
+        const ENEMY_TEXTURE = 'skeleton';  // Replace with the actual texture key for enemy2
         const ENEMY_HEALTH = 20;
         const ENEMY_DAMAGE = 80;
         const ENEMY_SPEED = 40;

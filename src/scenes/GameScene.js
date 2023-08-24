@@ -111,6 +111,7 @@ class GameScene extends Phaser.Scene {
         return fsm;
     }
 
+
     initKeyboardControls() {
         this.keys = this.input.keyboard.createCursorKeys();
         this.keys.HKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.H);
