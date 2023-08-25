@@ -1,16 +1,16 @@
 
 class Enemy extends Phaser.Physics.Arcade.Sprite {
-    constructor(scene, x, y, texture, health, damage, speed) {
+    constructor(scene, x, y, texture, health, damage, speed, bodysize_width, bodysize_height) {
         super(scene, x, y, texture);
         
         scene.add.existing(this);
         scene.physics.add.existing(this);
         this.setDepth(2);
         
-
         // Set enemy properties
-        this.setOrigin(0.5, 0.5); // Center the origin
+        this.setOrigin(0.5, 0.5);
         this.setVisible(true);    // Ensure enemy is visible
+        this.setBodySize(bodysize_width, bodysize_height);
         this.setActive(true);     // Set enemy as active
         this.setInteractive();
         scene.enemyManager.enemies.add(this);
@@ -35,23 +35,37 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         if (Math.abs(dx) > Math.abs(dy)) {
             // Moving horizontally
             if (dx > 0) {
-                this.setFlipX(false);
-                animationKey = `${this.texture.key}-walk-right`;
+                if (this.scene.anims.exists(`${this.texture.key}-walk-right`)) {
+                    this.setFlipX(false);
+                    animationKey = `${this.texture.key}-walk-right`;
+                }
             } else {
-                this.setFlipX(true);
-                animationKey = `${this.texture.key}-walk-left`;
+                if (this.scene.anims.exists(`${this.texture.key}-walk-right`)) {
+                    this.setFlipX(true);
+                    animationKey = `${this.texture.key}-walk-right`;
+                }
             }
         } else {
             // Moving vertically
+            
             if (dy > 0) {
-                animationKey = `${this.texture.key}-walk-down`;
+                if (this.scene.anims.exists(`${this.texture.key}-walk-down`)) {
+                    animationKey = `${this.texture.key}-walk-down`;
+                }
             } else {
-                animationKey = `${this.texture.key}-walk-up`;
+                if (this.scene.anims.exists(`${this.texture.key}-walk-up`)) {
+                    animationKey = `${this.texture.key}-walk-up`;
+                }
             }
         }
     
-        this.anims.play(animationKey, true);
+        if (animationKey !== '') {
+            this.play(animationKey, true);
+        }
     }
+    
+    
+    
     
         
 
@@ -70,20 +84,24 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
 
 class Enemy1 extends Enemy {
     constructor(scene, x, y) {
-        const ENEMY_TEXTURE = 'skeleton';  // Replace with the actual texture key for enemy1
-        const ENEMY_HEALTH = 50;
-        const ENEMY_DAMAGE = 50;
-        const ENEMY_SPEED = 60;
-        super(scene, x, y, ENEMY_TEXTURE, ENEMY_HEALTH, ENEMY_DAMAGE, ENEMY_SPEED);
+        const TEXTURE = 'bat';  // Replace with the actual texture key for enemy1
+        const HEALTH = 40;
+        const DAMAGE = 20;
+        const SPEED = 80;
+        const BODYSIZE_WIDTH = 10;
+        const BODYSIZE_HEIGHT = 10
+        super(scene, x, y, TEXTURE, HEALTH, DAMAGE, SPEED, BODYSIZE_WIDTH, BODYSIZE_HEIGHT);
     }
 }
 
 class Enemy2 extends Enemy {
     constructor(scene, x, y) {
-        const ENEMY_TEXTURE = 'skeleton';  // Replace with the actual texture key for enemy2
-        const ENEMY_HEALTH = 20;
-        const ENEMY_DAMAGE = 80;
-        const ENEMY_SPEED = 40;
-        super(scene, x, y, ENEMY_TEXTURE, ENEMY_HEALTH, ENEMY_DAMAGE, ENEMY_SPEED);
+        const TEXTURE = 'skeleton';  // Replace with the actual texture key for enemy1
+        const HEALTH = 120;
+        const DAMAGE = 40;
+        const SPEED = 60;
+        const BODYSIZE_WIDTH = 10;
+        const BODYSIZE_HEIGHT = 10
+        super(scene, x, y, TEXTURE, HEALTH, DAMAGE, SPEED, BODYSIZE_WIDTH, BODYSIZE_HEIGHT);
     }
 }

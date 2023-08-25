@@ -14,6 +14,7 @@ class AssetLoader {
         // Load hero sprites
         this.loadSpriteSheet('hero', 'hero-sheet.png', { frameWidth: 32, frameHeight: 32 });
         this.loadSpriteSheet('skeleton', 'skeleton-sheet.png', { frameWidth: 32, frameHeight: 32 });
+        this.loadSpriteSheet('bat', 'bat-sheet.png', { frameWidth: 32, frameHeight: 32 });
         this.loadSpriteSheet('meleeSprite', 'hero-sheet.png', { frameWidth: 32, frameHeight: 32 });
         this.loadSpriteSheet('rangedSprite', 'hero-sheet.png', { frameWidth: 32, frameHeight: 32 });
         this.loadSpriteSheet('armoredSprite', 'hero-sheet.png', { frameWidth: 32, frameHeight: 32 });
@@ -90,14 +91,6 @@ class AssetLoader {
             repeat: -1
         });
 
-        // The left animation for skeleton (utilizing the right animation but flipped when rendered)
-        this.scene.anims.create({
-            key: 'skeleton-walk-left',
-            frames: this.scene.anims.generateFrameNumbers('skeleton', { frames: [16, 17, 18, 19] }),
-            frameRate: 8,
-            repeat: -1
-        });
-
         // Animation for skeleton walking up
         this.scene.anims.create({
             key: 'skeleton-walk-up',
@@ -105,7 +98,20 @@ class AssetLoader {
             frameRate: 8,
             repeat: -1
         });
-    }
+
+                /*----------- BAT-------------- */
+
+
+        // Animation for skeleton walking right
+        this.scene.anims.create({
+            key: 'bat-walk-right',
+            frames: this.scene.anims.generateFrameNumbers('bat', { frames: [0, 1, 2, 3] }),
+            frameRate: 8,
+            repeat: -1
+        });
+     }
+  
+    
 
     createAllAnimations() {
         this.createHeroAnimations();

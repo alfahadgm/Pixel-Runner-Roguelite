@@ -11,8 +11,7 @@ class EnemyManager {
         });
 
         this.setupEnemyData();
-        this.setupWaveConfigurations();
-       
+        this.setupWaveConfigurations();       
     }
 
     updateEnemies(hero) {

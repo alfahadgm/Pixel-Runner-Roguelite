@@ -17,7 +17,6 @@ class Hero extends Phaser.Physics.Arcade.Sprite {
         this.heroStats = new HeroStats();
         this.lastFired = 0;
         this.body.setSize(15,20,true);
-
         // Weapon properties
         this.initializeWeapons();
     }

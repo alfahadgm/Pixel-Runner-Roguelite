@@ -29,6 +29,9 @@ class GameScene extends Phaser.Scene {
         this.utils = new Utils(this); // Make enemyManager a property of the class.
         // Check for collisions between bullet and enemy
         this.physics.add.overlap(this.hero, this.enemyManager.enemies, this.heroHitenemy, null, this);
+        this.physics.add.collider(this.enemyManager.enemies, this.enemyManager.enemies, null, null, this);
+
+
        // this.physics.add.collider(this.hero.currentWeapon.bullets, this.enemyManager.enemies, this.bulletHitenemy, null, this);
         this.heroFSM = this.createHeroFSM();
         this.assetLoader.createAllAnimations();

@@ -115,21 +115,22 @@ class DashState extends State {
     enter(scene, hero) {
         hero.anims.play(`swing-${hero.direction}`);
         hero.setTint(0x00AA00);     // turn green
+        let dashVelocityMultiplier = 2;
+
         switch(hero.direction) {
             case 'up':
-                hero.setVelocityY(-hero.heroVelocity * 3);
+                hero.setVelocityY(-hero.heroVelocity * dashVelocityMultiplier);
                 break;
             case 'down':
-                hero.setVelocityY(hero.heroVelocity * 3);
+                hero.setVelocityY(hero.heroVelocity * dashVelocityMultiplier);
                 break;
             case 'left':
-                hero.setVelocityX(-hero.heroVelocity * 3);
+                hero.setVelocityX(-hero.heroVelocity * dashVelocityMultiplier);
                 break;
             case 'right':
-                hero.setVelocityX(hero.heroVelocity * 3);
+                hero.setVelocityX(hero.heroVelocity * dashVelocityMultiplier);
                 break;
         }
-
         // set a short cooldown delay before going back to idle
         scene.time.delayedCall(hero.dashCooldown, () => {
             hero.clearTint();
@@ -137,6 +138,7 @@ class DashState extends State {
         });
     }
 }
+
 
 class HurtState extends State {
     enter(scene, hero) {
