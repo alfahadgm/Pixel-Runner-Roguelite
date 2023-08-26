@@ -18,6 +18,7 @@ class Upgrades {
         }
         
         this.updateTintedBackgroundSizeAndPosition(cam);
+        this.tintedBackground.visible = true;  // Ensure the tintedBackground is visible
     }
     
     updateTintedBackgroundSizeAndPosition(cam) {
@@ -70,19 +71,24 @@ class Upgrades {
     
     createWeaponShopPanel() {
         const cam = this.scene.cameras.main;
-
-        // Define initial starting position at the left top corner.
-        let startX = cam.scrollX + 10;  // 10 pixels padding from the left
-        let startY = cam.scrollY + 20;  // 10 pixels padding from the top
     
-        const spacing = 5;
-        let currentX = startX;
-        let currentY = startY;
+        // Define initial starting position.
+        const spacing = 20;
+        const centeredX = cam.scrollX + cam.width / 2;  // Center of the camera.
     
         this.weaponShopPanel = this.scene.add.group();
-        const weaponText = this.scene.add.text(currentX, currentY, 'Weapon Shop', { fontSize: '16px' }).setOrigin(0).setDepth(6);
+        const weaponText = this.scene.add.text(centeredX, cam.scrollY + spacing, 'Weapon Shop', { fontSize: '32px' }).setOrigin(0.5).setDepth(6);  // Doubled font size and set the origin to center the text.
         this.weaponShopPanel.add(weaponText);
-        currentY += weaponText.height + spacing;
+    
+        // Define Resume button properties.
+        const resumeFontSize = '32px';
+        const resumePadding = 50;  // Padding from the bottom.
+
+        let startX = cam.scrollX + 10;  // Padding from the left.
+        let startY = cam.scrollY + weaponText.height + 2 * spacing;  // Below the Weapon Shop text.
+    
+        let currentX = startX;
+        let currentY = startY;
     
     
         const attributes = [
@@ -93,7 +99,7 @@ class Upgrades {
             { name: 'Max Range', property: 'maxRange', cost: 70, costModifier: 1.2, modificationType: 'value', modificationValue: 5 },
             { name: 'Cooldown', property: 'cooldown', cost: 60, costModifier: 1.15, modificationType: 'percentage', modificationValue: -10 },
             { name: 'Magazine Size', property: 'magazineSize', cost: 90, costModifier: 1.25, modificationType: 'value', modificationValue: 2 },
-            { name: 'Total Ammo', property: 'totalAmmo', cost: 50, costModifier: 1.1, modificationType: 'value', modificationValue: 10 },
+            { name: 'Total Ammo', property: 'totalAmmo', cost: 50, costModifier: 1.0, modificationType: 'value', modificationValue: 10 },
             { name: 'Reload Time', property: 'reloadTime', cost: 85, costModifier: 1.2, modificationType: 'percentage', modificationValue: -10 },
             { name: 'Bullet Penetration', property: 'penetration', cost: 95, costModifier: 1.3, modificationType: 'percentage', modificationValue: 10 }
         ];
@@ -104,16 +110,16 @@ class Upgrades {
                 currentY = startY;
             }
     
-            let text = this.scene.add.text(currentX, currentY, `${attr.name}: ${this.hero.currentWeapon.weaponStats[attr.property]}`, { fontSize: '12px' }).setDepth(6);
+            let text = this.scene.add.text(currentX, currentY, `${attr.name}: ${this.hero.currentWeapon.weaponStats[attr.property]}`, { fontSize: '16px' }).setDepth(6);
             this.weaponShopPanel.add(text);
-            currentY += text.height + spacing;
+            currentY += text.height;
         
             let buttonText = attr.property === 'totalAmmo' 
                 ? `Buy Ammo for ${attr.cost} coins`
-                : `Increase ${attr.name} by ${attr.modificationValue}${attr.modificationType === 'percentage' ? '%' : ''} for ${attr.cost} coins`;
+                : `Increase ${attr.name} by ${attr.modificationValue}${attr.modificationType === 'percentage' ? '%' : ''} \n ${attr.cost} coins`;
         
             // Reduced font size to '8px' and changed color to 'blue' for the button.
-            let button = this.scene.add.text(currentX, currentY, buttonText, { fontSize: '8px', fill: '#0000FF' }).setInteractive().setDepth(6);
+            let button = this.scene.add.text(currentX, currentY, buttonText, { fontSize: '12px', fill: '#FF5733' }).setInteractive().setDepth(6);
         
             button.on('pointerdown', () => {
                 // Check if hero has enough coins
@@ -154,19 +160,30 @@ class Upgrades {
             }
         });
 
-        this.resumeButton = this.scene.add.text(startX, cam.scrollY + cam.height - 100, 'Resume', { fontSize: '10px', fill: '#0000FF' }).setInteractive().setDepth(6);
-        this.resumeButton.on('pointerdown', () => {
-            if (this.weaponShopPanel) {
-                this.weaponShopPanel.clear(true, true);
-                this.weaponShopPanel = null;
-            }
-            
-            this.scene.resumeGame();
-            this.resumeButton.destroy();
-            this.isUpgradeMenuActive = false;
-            this.hideTintedBackground();
-        });
-    }
+    // Calculate the position for the Resume button
+    let resumeButtonX = centeredX;
+    let resumeButtonY = cam.scrollY + cam.height - resumePadding;  // Place it above the padding from the bottom
+
+    // Create the Resume button
+    let resumeButton = this.scene.add.text(resumeButtonX, resumeButtonY, 'Resume', { fontSize: resumeFontSize, fill: '#FF5733' })
+        .setOrigin(0.5)  // Center the text
+        .setInteractive()
+        .setDepth(6);
+    this.weaponShopPanel.add(resumeButton);
+
+    // Handle button interactivity
+    resumeButton.on('pointerdown', () => {
+        if (this.weaponShopPanel) {
+            this.weaponShopPanel.clear(true, true);
+            this.weaponShopPanel = null;
+        }
+        
+        this.scene.resumeGame();
+        resumeButton.destroy();
+        this.isUpgradeMenuActive = false;
+        this.hideTintedBackground();
+    });
+}
     
 
 
@@ -200,23 +217,6 @@ class Upgrades {
         }
 
         this.weaponShopPanel.visible = true;
-
-        if (this.resumeButton) {
-            this.resumeButton.destroy();
-            this.resumeButton = null;
-        }
-
-        this.resumeButton = this.scene.add.text(startX, cam.scrollY + cam.height - 100, 'Resume', { fontSize: '10px', fill: '#0000FF' }).setInteractive().setDepth(6);
-        this.resumeButton.on('pointerdown', () => {
-            if (this.weaponShopPanel) {
-                this.weaponShopPanel.clear(true, true);
-                this.weaponShopPanel = null;
-            }
-            this.scene.resumeGame();
-            this.resumeButton.destroy();
-            this.isUpgradeMenuActive = false;
-            this.hideTintedBackground();
-        });
     }
     update() {
         if (this.isUpgradeMenuActive) {

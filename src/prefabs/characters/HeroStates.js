@@ -116,7 +116,7 @@ class DashState extends State {
         hero.anims.play(`swing-${hero.direction}`);
         hero.setTint(0x00AA00);     // turn green
         let dashVelocityMultiplier = 2;
-
+        scene.dashHero();
         switch(hero.direction) {
             case 'up':
                 hero.setVelocityY(-hero.heroVelocity * dashVelocityMultiplier);

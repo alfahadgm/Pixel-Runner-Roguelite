@@ -9,7 +9,9 @@ class GameScene extends Phaser.Scene {
         this.chunkManager = new ChunkManager(this);
         this.assetLoader = new AssetLoader(this);
         this.isGamePaused = false;
-
+        this.enemyOnCooldown = false;
+        this.heroIsTouchingenemy = false;
+        this.heroIsInvincible = false;
         this.cameraLerpFactor = 0.1;  
     }
 
@@ -28,7 +30,7 @@ class GameScene extends Phaser.Scene {
         this.upgrades = new Upgrades(this, this.hero); // Initialize the upgrades system
 
         // Check for collisions between bullet and enemy
-        this.physics.add.overlap(this.hero, this.enemyManager.enemies, this.heroHitenemy, null, this);
+        this.physics.add.overlap(this.hero, this.enemyManager.enemies, this.EnemyhitHero, null, this);
         this.physics.add.overlap(this.hero, this.collectableManager.collectablesGroup, this.collect, null, this);
         this.physics.add.collider(this.enemyManager.enemies, this.enemyManager.enemies, null, null, this);
 
@@ -94,12 +96,54 @@ class GameScene extends Phaser.Scene {
         return nearestEnemy;
     }
 
-    heroHitenemy(hero, enemy) {
-        
-        if(this.heroFSM.state != 'dash') {
+    EnemyhitHero(hero, enemy) {
+        // Only proceed if the enemy is not on a cooldown and the hero isn't already tinted.
+        if (!this.heroIsInvincible && !this.enemyOnCooldown && !this.heroIsTouchingenemy) {
+    
+            // Apply damage logic here
+            hero.heroStats.health -= enemy.damage;
+    
+            // Tint the hero red to indicate damage taken.
             hero.setTint(0xFF0000);
+    
+            // Flag that the hero is currently touching the enemy
             this.heroIsTouchingenemy = true;
+    
+            // Put the enemy on a cooldown so it can't deal damage constantly.
+            this.enemyOnCooldown = true;
+    
+            // Reset the hero tint after half a second (100 milliseconds).
+            this.time.addEvent({
+                delay: 100,
+                callback: () => {
+                    hero.clearTint();
+                    this.heroIsTouchingenemy = false;
+                },
+                callbackScope: this
+            });
+    
+            // Reset the enemy's cooldown after a specified time (1 second).
+            this.time.addEvent({
+                delay: 1000,
+                callback: () => {
+                    this.enemyOnCooldown = false;
+                },
+                callbackScope: this
+            });
         }
+    }
+    
+    dashHero() {
+        this.heroIsInvincible = true;
+    
+        // After 1.5 seconds, hero is no longer invincible.
+        this.time.addEvent({
+            delay: 1500,
+            callback: () => {
+                this.heroIsInvincible = false;
+            },
+            callbackScope: this
+        });
     }
     
 
