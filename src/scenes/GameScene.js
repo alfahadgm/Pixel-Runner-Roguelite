@@ -8,27 +8,28 @@ class GameScene extends Phaser.Scene {
         this.totalTime = 0; 
         this.chunkManager = new ChunkManager(this);
         this.assetLoader = new AssetLoader(this);
+        this.isGamePaused = false;
+
         this.cameraLerpFactor = 0.1;  
     }
 
     preload() {
         this.assetLoader.setPath(this.assetPath);
-        if (this.assetLoader && typeof this.assetLoader.loadSprites === 'function') {
-            this.assetLoader.loadSprites();
-        } else {
-            console.error("AssetLoader not properly initialized or loadSprites method not found.");
-        }
+        this.assetLoader.loadSprites();
     }
 
     create() {
         this.initWorldView();
         this.hero = new Hero(this, this.followPoint.x, this.followPoint.y, 'hero', 0, 'down').setDepth(2);
-        
+        this.collectableManager = new CollectableManager(this);
         this.enemyManager = new EnemyManager(this); // Make enemyManager a property of the class.
-        this.ui = new UI(this); // Make enemyManager a property of the class.
+        this.ui = new UI(this, this.hero); // Make enemyManager a property of the class.
         this.utils = new Utils(this); // Make enemyManager a property of the class.
+        this.upgrades = new Upgrades(this, this.hero); // Initialize the upgrades system
+
         // Check for collisions between bullet and enemy
         this.physics.add.overlap(this.hero, this.enemyManager.enemies, this.heroHitenemy, null, this);
+        this.physics.add.overlap(this.hero, this.collectableManager.collectablesGroup, this.collect, null, this);
         this.physics.add.collider(this.enemyManager.enemies, this.enemyManager.enemies, null, null, this);
 
 
@@ -37,19 +38,17 @@ class GameScene extends Phaser.Scene {
         this.assetLoader.createAllAnimations();
         this.initKeyboardControls();
         this.cameras.main.startFollow(this.hero, true, this.cameraLerpFactor, this.cameraLerpFactor);
+        
     }
 
-    bulletHitenemy(bullet, enemy) {
-        const damage = bullet.weaponStats.getDamage(); // Ensure your weaponStats has a method getDamage()
-        enemy.decreaseHealth(damage);
-        this.scene.displayDamageText(enemy.x, enemy.y, damage, bullet.weaponStats.isCriticalHit);
-        bullet.destroyBullet(); // Using the bullet's destroyBullet method
+    collect(hero, collectable) {
+        collectable.activate();
     }
 
     displayDamageText(x, y, damage, isCritical) {
         const style = isCritical ? { color: 'red', fontSize: '16px' } : { color: 'white', fontSize: '16px' };
         const damageText = this.add.text(x, y, `${damage}`, style).setOrigin(0.5, 0.5); // Centering the text
-        damageText.setDepth(10)
+        damageText.setDepth(10);
         // Animate the text: Move upwards while fading out over 0.5 seconds
         this.tweens.add({
             targets: damageText,
@@ -58,6 +57,24 @@ class GameScene extends Phaser.Scene {
             duration: 500, // 0.5 seconds
             onComplete: () => {
                 damageText.destroy();
+            }
+        });
+    }
+
+    // In your main scene class
+    displayCollectableText(x, y, text) {
+        const style = { color: 'yellow', fontSize: '16px' };
+        const collectableText = this.add.text(x, y, text, style).setOrigin(0.5, 0.5); // Centering the text
+        collectableText.setDepth(10);
+
+        // Animate the text: Move upwards while fading out over 0.5 seconds
+        this.tweens.add({
+            targets: collectableText,
+            y: y - 50,     // Move 50 pixels up
+            alpha: 0,      // Fade out
+            duration: 500, // 0.5 seconds
+            onComplete: () => {
+                collectableText.destroy();
             }
         });
     }
@@ -118,6 +135,7 @@ class GameScene extends Phaser.Scene {
         this.keys = this.input.keyboard.createCursorKeys();
         this.keys.HKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.H);
         this.keys.KKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.K);
+        this.keys.EnterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
 
         this.keys.WKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
         this.keys.WKey.on('down', () => {
@@ -126,6 +144,24 @@ class GameScene extends Phaser.Scene {
     }
     
     update(time, delta) {
+
+        if (this.keys.EnterKey.isDown && !this.isGameEnterKeyPressed) {
+            this.isGameEnterKeyPressed = true;  // to ensure single press
+            if (!this.isGamePaused) {
+                this.pauseGame();
+            } else {
+                this.resumeGame();
+            }
+        } else if (this.keys.EnterKey.isUp) {
+            this.isGameEnterKeyPressed = false;  // reset the key press state
+        }
+    
+        // Prevent the rest of the update function from running if the game is paused
+        if (this.isGamePaused) {
+            return;
+        }
+
+
         if (this.heroFSM && typeof this.heroFSM.step === 'function') {
             this.heroFSM.step();
         }
@@ -146,13 +182,22 @@ class GameScene extends Phaser.Scene {
             });
         }
 
+        for (let weapon of this.hero.weapons) {
+            if (weapon instanceof EnergyWeapon) {
+                weapon.update(time);
+            }
+        }
+
+        this.collectableManager.collectablesGroup.getChildren().forEach(collectable => {
+            collectable.update(this.hero);
+        });
+        
+
         this.enemyManager.updateEnemies(this.hero);
-        this.enemyManager.manageWaves(delta)
+        this.enemyManager.manageWaves(delta);
         this.totalTime += delta / 1000; 
         this.ui.updateTimerDisplay(); // We'll create this in the UI class
-
-     
-      
+        this.ui.updateHeroUI();
 
     }
 
@@ -162,4 +207,34 @@ class GameScene extends Phaser.Scene {
         }
         this.gameDebugger.executeFullReport();
     }
+
+    pauseGame() {
+        this.isGamePaused = true;
+        this.physics.pause();
+        this.tweens.pauseAll();
+        
+        // Pause the hero's weapon firing
+        this.hero.pauseFiring();
+    
+        // Pause animations
+        this.assetLoader.pauseAllAnimations();
+        
+        // ... any other game pausing code
+    }
+    
+    resumeGame() {
+        this.isGamePaused = false;
+        this.physics.resume();
+        this.tweens.resumeAll();
+    
+        // Resume the hero's weapon firing
+        this.hero.resumeFiring();
+    
+        // Resume animations
+        this.assetLoader.resumeAllAnimations();
+        
+        // ... any other game resuming code
+    }
+
+
 }
