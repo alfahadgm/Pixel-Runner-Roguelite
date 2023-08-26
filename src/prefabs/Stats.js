@@ -10,29 +10,38 @@ class HeroStats {
         this.xp = xp;
         this.level = level;
         this.coins = coins;
-        this.xpThresholds = [10, 300, 600, 1000, 1500]; // Sample XP thresholds for levels 2 to 6.
+        this.xpThresholds = [10, 50, 100, 500, 1000]; 
     }
 
-    // Modify attributes by a specific percentage
+    levelUp() {
+        if (this.level < this.xpThresholds.length) {
+            this.level++;
+            this.scene.pauseGame();
+            this.scene.upgrades.showUpgrades();
+            // Add other level-up logic if needed, e.g., increasing health, etc.
+        } else {
+            // Logic for when the hero is at max level.
+        }
+    }
+
     modifyAttributeByPercentage(attribute, percentage) {
         if (this[attribute] !== undefined) {
             this[attribute] *= (1 + (percentage / 100));
         }
     }
 
-    // Modify attributes by a fixed number
     modifyAttributeByValue(attribute, value) {
         if (this[attribute] !== undefined) {
             this[attribute] += value;
 
-            // Special logic for XP accumulation and level up
             if (attribute === "xp" && this.level < this.xpThresholds.length) {
                 if (this.xp >= this.xpThresholds[this.level - 1]) {
-                    this.scene.hero.levelUp();
+                    this.levelUp();
                 }
             }
         }
     }
+
     
 
     // Heal method to increase health and shield without exceeding their max values

@@ -48,7 +48,7 @@ class GameScene extends Phaser.Scene {
     displayDamageText(x, y, damage, isCritical) {
         const style = isCritical ? { color: 'red', fontSize: '16px' } : { color: 'white', fontSize: '16px' };
         const damageText = this.add.text(x, y, `${damage}`, style).setOrigin(0.5, 0.5); // Centering the text
-        damageText.setDepth(10);
+        damageText.setDepth(3);
         // Animate the text: Move upwards while fading out over 0.5 seconds
         this.tweens.add({
             targets: damageText,
@@ -65,7 +65,7 @@ class GameScene extends Phaser.Scene {
     displayCollectableText(x, y, text) {
         const style = { color: 'yellow', fontSize: '16px' };
         const collectableText = this.add.text(x, y, text, style).setOrigin(0.5, 0.5); // Centering the text
-        collectableText.setDepth(10);
+        collectableText.setDepth(3);
 
         // Animate the text: Move upwards while fading out over 0.5 seconds
         this.tweens.add({
@@ -191,8 +191,7 @@ class GameScene extends Phaser.Scene {
         this.collectableManager.collectablesGroup.getChildren().forEach(collectable => {
             collectable.update(this.hero);
         });
-        
-
+        this.upgrades.update()
         this.enemyManager.updateEnemies(this.hero);
         this.enemyManager.manageWaves(delta);
         this.totalTime += delta / 1000; 
@@ -219,6 +218,7 @@ class GameScene extends Phaser.Scene {
         // Pause animations
         this.assetLoader.pauseAllAnimations();
         
+        
         // ... any other game pausing code
     }
     
@@ -232,6 +232,20 @@ class GameScene extends Phaser.Scene {
     
         // Resume animations
         this.assetLoader.resumeAllAnimations();
+
+        if (this.upgradePanel) {
+            this.upgradePanel.clear(true, true);
+        }
+        
+        if (this.weaponShopPanel) {
+            this.weaponShopPanel.clear(true, true);
+        }
+        
+        if (this.tintedBackground) {
+            this.tintedBackground.visible = false;
+        }
+        
+        this.isUpgradeMenuActive = false;
         
         // ... any other game resuming code
     }

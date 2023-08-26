@@ -31,17 +31,12 @@ class Hero extends Phaser.Physics.Arcade.Sprite {
         this.setupAutoFireEvent();
     }
 
-    levelUp() {
-        this.level++;
-        this.scene.pauseGame();
-        this.scene.upgrades.showUpgrades();
-    }
 
     setupText(x, y, text) {
         return this.scene.add.text(x, y, text, {
             fontSize: '12px',
             fill: '#ffffff'
-        }).setScrollFactor(0).setDepth(1000);
+        }).setScrollFactor(0).setDepth(4);
     }
 
     setupAutoFireEvent() {

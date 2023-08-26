@@ -63,6 +63,6 @@ class UI {
             fontSize: fontSize,
             fill: fill,
             align: align
-        }).setScrollFactor(0).setDepth(1000);
+        }).setScrollFactor(0).setDepth(4);
     }
 }
