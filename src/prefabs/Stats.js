@@ -10,7 +10,16 @@ class HeroStats {
         this.xp = xp;
         this.level = level;
         this.coins = coins;
-        this.xpThresholds = [10, 50, 100, 500, 1000]; 
+        this.xpThresholds = [100]; 
+        this.generateXpThresholds();
+    }
+
+    generateXpThresholds() {
+        while(this.xpThresholds.length < 100) {
+            let lastXp = this.xpThresholds[this.xpThresholds.length - 1];
+            let nextXp = Math.round(lastXp * 1.5 / 100) * 100; // Multiply by 1.5 and round to the nearest hundred.
+            this.xpThresholds.push(nextXp);
+        }
     }
 
     levelUp() {
@@ -42,6 +51,40 @@ class HeroStats {
         }
     }
 
+    getDamage(rawDamage) {
+        // Calculate post-mitigation damage based on armor formula.
+        const postMitigationDamage = rawDamage / (1 + (this.armor / 100));
+    
+        // Damage Reduction Percentage (optional, just to show the calculation)
+        const damageReductionPercentage = 1 - (postMitigationDamage / rawDamage);
+    
+        // Effective Health Increase (optional, just to show the calculation)
+        const effectiveHealthIncrease = (rawDamage / postMitigationDamage) - 1;
+    
+        // If the hero has a shield
+        if (this.shield > 0) {
+            // If shield can absorb all the post-mitigation damage
+            if (this.shield >= postMitigationDamage) {
+                this.shield -= postMitigationDamage;
+                return; // No damage to health
+            } else {
+                // Damage will hit both shield and health
+                const damageToHealth = postMitigationDamage - this.shield;
+                this.shield = 0; // Shield is fully depleted
+                this.health -= damageToHealth;
+            }
+        } else {
+            // No shield, so health takes the full hit
+            this.health -= postMitigationDamage;
+        }
+    
+        // Ensure health doesn't go below zero
+        if (this.health < 0) {
+            this.health = 0;
+        }
+    }
+    
+
     
 
     // Heal method to increase health and shield without exceeding their max values
@@ -50,24 +93,20 @@ heal(amount) {
         console.error("Invalid heal amount");
         return;
     }
-
-    // First heal the health up to its max value
     const healthDeficit = this.maxhealth - this.health;
     if (amount <= healthDeficit) {
         this.health += amount;
-        return;  // Exit if all healing amount is consumed for health
+        return;
     }
 
-    // If there's excess healing after maxing out health
-    this.health = this.maxhealth;  // Set health to its maximum value
-    amount -= healthDeficit;  // Deduct the amount used to heal health to its max
+    this.health = this.maxhealth;
+    amount -= healthDeficit;
     
-    // Use the remaining amount to heal the shield up to its max value
     const shieldDeficit = this.maxshield - this.shield;
     if (amount <= shieldDeficit) {
         this.shield += amount;
     } else {
-        this.shield = this.maxshield;  // Set shield to its maximum value
+        this.shield = this.maxshield;
     }
 }
 

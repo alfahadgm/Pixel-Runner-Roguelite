@@ -48,21 +48,34 @@ class GameScene extends Phaser.Scene {
     }
 
     displayDamageText(x, y, damage, isCritical) {
-        const style = isCritical ? { color: 'red', fontSize: '16px' } : { color: 'white', fontSize: '16px' };
-        const damageText = this.add.text(x, y, `${damage}`, style).setOrigin(0.5, 0.5); // Centering the text
-        damageText.setDepth(3);
-        // Animate the text: Move upwards while fading out over 0.5 seconds
-        this.tweens.add({
-            targets: damageText,
-            y: y - 50,     // Move 50 pixels up
-            alpha: 0,      // Fade out
-            duration: 500, // 0.5 seconds
-            onComplete: () => {
-                damageText.destroy();
-            }
+        damage = Math.round(damage); // Round to nearest whole number
+
+        const color = isCritical ? 'red' : 'grey'; // Choosing sprite sheet based on critical hit
+    
+        // Convert damage to array of digits
+        const digits = Array.from(String(damage), Number).map(digit => (digit === 0) ? 9 : digit - 1);
+        
+        const spacing = 6; // Assuming each digit sprite has a width of 6
+        const startx = x - (spacing * digits.length) / 2; // Start position for centering the numbers
+    
+        digits.forEach((digit, index) => {
+            const numberSprite = this.add.sprite(startx + index * spacing, y, `${color}Numbers`, digit).setOrigin(0.5, 0.5);
+            numberSprite.setDepth(3);
+    
+            // Animate the sprite: Move upwards while fading out over 0.5 seconds
+            this.tweens.add({
+                targets: numberSprite,
+                y: y - 50,     // Move 50 pixels up
+                alpha: 0,      // Fade out
+                duration: 500, // 0.5 seconds
+                onComplete: () => {
+                    numberSprite.destroy();
+                }
+            });
         });
     }
-
+    
+    
     // In your main scene class
     displayCollectableText(x, y, text) {
         const style = { color: 'yellow', fontSize: '16px' };
@@ -101,8 +114,7 @@ class GameScene extends Phaser.Scene {
         if (!this.heroIsInvincible && !this.enemyOnCooldown && !this.heroIsTouchingenemy) {
     
             // Apply damage logic here
-            hero.heroStats.health -= enemy.damage;
-    
+            hero.heroStats.getDamage(enemy.damage);
             // Tint the hero red to indicate damage taken.
             hero.setTint(0xFF0000);
     

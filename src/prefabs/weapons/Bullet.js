@@ -39,21 +39,7 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
         bullet.destroyBullet();
     }
 
-    displayDamageText(x, y, damage, isCritical) {
-        const style = isCritical ? { color: 'red', fontSize: '16px' } : { color: 'white', fontSize: '16px' };
-        const damageText = this.add.text(x, y, `${damage}`, style).setOrigin(0.5, 0.5); // Centering the text
-        damageText.setDepth(10);
-        // Animate the text: Move upwards while fading out over 0.5 seconds
-        this.tweens.add({
-            targets: damageText,
-            y: y - 50,     // Move 50 pixels up
-            alpha: 0,      // Fade out
-            duration: 500, // 0.5 seconds
-            onComplete: () => {
-                damageText.destroy();
-            }
-        });
-    }
+
 
     preDestroy() {
         this.scene.physics.world.disable(this);

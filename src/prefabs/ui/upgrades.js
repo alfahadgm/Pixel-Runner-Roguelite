@@ -92,12 +92,12 @@ class Upgrades {
     
     
         const attributes = [
-            { name: 'Damage', property: 'damage', cost: 100, costModifier: 1.2, modificationType: 'percentage', modificationValue: 10 },
-            { name: 'Bullet Speed', property: 'bulletSpeed', cost: 80, costModifier: 1.2, modificationType: 'percentage', modificationValue: 10 },
-            { name: 'Critical Chance', property: 'criticalChance', cost: 120, costModifier: 1.25, modificationType: 'percentage', modificationValue: 5 },
+            { name: 'Damage', property: 'damage', cost: 100, costModifier: 1.2, modificationType: 'percentage', modificationValue: 5 },
+            { name: 'Bullet Speed', property: 'bulletSpeed', cost: 80, costModifier: 1.2, modificationType: 'value', modificationValue: 10 },
+            { name: 'Critical Chance', property: 'criticalChance', cost: 120, costModifier: 1.25, modificationType: 'value', modificationValue: 0.05 },
             { name: 'Critical Damage', property: 'criticalDamage', cost: 150, costModifier: 1.3, modificationType: 'percentage', modificationValue: 15 },
             { name: 'Max Range', property: 'maxRange', cost: 70, costModifier: 1.2, modificationType: 'value', modificationValue: 5 },
-            { name: 'Cooldown', property: 'cooldown', cost: 60, costModifier: 1.15, modificationType: 'percentage', modificationValue: -10 },
+            { name: 'FireRate', property: 'cooldown', cost: 60, costModifier: 1.15, modificationType: 'value', modificationValue: -10 },
             { name: 'Magazine Size', property: 'magazineSize', cost: 90, costModifier: 1.25, modificationType: 'value', modificationValue: 2 },
             { name: 'Total Ammo', property: 'totalAmmo', cost: 50, costModifier: 1.0, modificationType: 'value', modificationValue: 10 },
             { name: 'Reload Time', property: 'reloadTime', cost: 85, costModifier: 1.2, modificationType: 'percentage', modificationValue: -10 },

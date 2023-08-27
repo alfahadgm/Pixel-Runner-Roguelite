@@ -9,7 +9,7 @@ class EnemyManager {
             classType: Enemy,
             maxSize: 100,
         });
-
+        
         this.setupEnemyData();
         this.setupWaveConfigurations();       
     }
@@ -54,7 +54,7 @@ class EnemyManager {
     setupWaveConfigurations() {
         this.waveConfigurations = [
             { 
-                duration: 30, 
+                duration: 60, 
                 enemyBudget: 100, 
                 spawnCooldownRange: [2, 3], 
                 allowedEnemies: [
@@ -62,8 +62,8 @@ class EnemyManager {
                 ]
             },
             { 
-                duration: 35, 
-                enemyBudget: 150, 
+                duration: 60, 
+                enemyBudget: 200, 
                 spawnCooldownRange: [1.8, 2.8], 
                 allowedEnemies: [
                     { type: 'enemy1', probability: 0.7 }, // 70% chance for 'enemy1'
@@ -71,8 +71,8 @@ class EnemyManager {
                 ]
             },
             { 
-                duration: 40, 
-                enemyBudget: 250, 
+                duration: 60, 
+                enemyBudget: 300, 
                 spawnCooldownRange: [1.5, 2.5], 
                 allowedEnemies: [
                     { type: 'enemy1', probability: 0.5 }, // 50% chance for 'enemy1'
@@ -80,7 +80,7 @@ class EnemyManager {
                 ]
             },
             { 
-                duration: 45, 
+                duration: 60, 
                 enemyBudget: 400, 
                 spawnCooldownRange: [1.3, 2.3], 
                 allowedEnemies: [
@@ -127,18 +127,43 @@ class EnemyManager {
 
     spawnEnemies(waveConfig) {
         if (this.enemyBudget <= 0) return;
-
-        const selectedEnemyType = this.selectEnemyTypeByProbability();
-        const enemyInfo = this.enemyData[selectedEnemyType];
-
-        if (this.enemyBudget >= enemyInfo.cost) {
-            this.spawnEnemyOfType(enemyInfo);
-            this.enemyBudget -= enemyInfo.cost;
+    
+        const randomChance = Math.random();
+        const BATCH_SPAWN_PROBABILITY = 0.1; // 10% chance to spawn a batch of enemies
+    
+        if (this.currentWave >= 3 && randomChance <= BATCH_SPAWN_PROBABILITY) {
+            const BATCH_BUDGET = 30; // Decide how much budget to allocate for a single batch
+            this.EnemiesBatch(Math.min(this.enemyBudget, BATCH_BUDGET));
+        } else {
+            const selectedEnemyType = this.selectEnemyTypeByProbability();
+            const enemyInfo = this.enemyData[selectedEnemyType];
+    
+            if (this.enemyBudget >= enemyInfo.cost) {
+                this.spawnEnemyOfType(enemyInfo);
+                this.enemyBudget -= enemyInfo.cost;
+            }
         }
-
+    
         const cooldown = Phaser.Math.Between(waveConfig.spawnCooldownRange[0] * 1000, waveConfig.spawnCooldownRange[1] * 1000);
         this.scene.time.delayedCall(cooldown, () => this.spawnEnemies(waveConfig), [], this);
     }
+    
+
+    EnemiesBatch(batchBudget) {
+        // Loop until the budget for this batch is exhausted or below the cost of the cheapest enemy
+        while (batchBudget > 0) {
+            const selectedEnemyType = this.selectEnemyTypeByProbability();
+            const enemyInfo = this.enemyData[selectedEnemyType];
+            
+            if (batchBudget >= enemyInfo.cost) {
+                this.spawnEnemyOfType(enemyInfo);
+                batchBudget -= enemyInfo.cost;
+            } else {
+                break; // If we can't afford any enemy, break out
+            }
+        }
+    }
+    
 
     spawnEnemyOfType(enemyInfo) {
         if (this.enemyBudget < enemyInfo.cost) {

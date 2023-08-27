@@ -15,7 +15,8 @@ class Weapon {
             if (nearestEnemy) {
             
                 const distanceToEnemy = Math.sqrt((nearestEnemy.x - x) ** 2 + (nearestEnemy.y - y) ** 2);
-            
+                console.log("Budget : " + this.scene.enemyManager.enemyBudget);
+
                 if (distanceToEnemy <= this.weaponStats.maxRange) {
                     const direction = this.getDirectionToTarget(x, y, nearestEnemy.x, nearestEnemy.y);
                     this.launchProjectile(x, y, direction);

@@ -38,6 +38,13 @@ class AssetLoader {
         this.loadImage('xporb-mid', 'collectables/xporb2.png');
         this.loadImage('xporb-high', 'collectables/xporb3.png');
         this.loadImage('ammo', 'collectables/ammo.png');
+
+        //Numbers
+        this.loadSpriteSheet('yellowNumbers', 'numbers/yellow.png', { frameWidth: 6, frameHeight: 8 });
+        this.loadSpriteSheet('blueNumbers', 'numbers/blue.png', { frameWidth: 6, frameHeight: 8 });
+        this.loadSpriteSheet('greenNumbers', 'numbers/yellow.png', { frameWidth: 6, frameHeight: 8 });
+        this.loadSpriteSheet('greyNumbers', 'numbers/yellow.png', { frameWidth: 6, frameHeight: 8 });
+        this.loadSpriteSheet('redNumbers', 'numbers/yellow.png', { frameWidth: 6, frameHeight: 8 });
     }
 
     loadSpriteSheet(key, path, frameConfig) {
@@ -87,6 +94,21 @@ class AssetLoader {
     
     resumeAllAnimations() {
         this.scene.anims.resumeAll();
+    }
+
+    colorsSpriteSheets(){
+        const colors = ['yellow', 'blue', 'green', 'grey', 'red'];
+    
+        colors.forEach(color => {
+            for (let i = 0; i <= 9; i++) {
+                this.scene.anims.create({
+                    key: `${color}-number-${i}`,
+                    frames: [{ key: `${color}Numbers`, frame: i }],
+                    frameRate: 10,
+                    repeat: 0 // no repeat since it's a single frame
+                });
+            }
+        });
     }
 
     enemySpriteSheets(){
@@ -177,6 +199,7 @@ class AssetLoader {
         this.createHeroAnimations();
         this.enemySpriteSheets();
         this.createWaterAnimations();
+        this.colorsSpriteSheets();
         this.collectablesSpriteSheets();    
     }
 
