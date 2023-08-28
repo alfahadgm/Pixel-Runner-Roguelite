@@ -36,8 +36,14 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
         const damage = bullet.weaponStats.getDamage(); 
         enemy.decreaseHealth(damage);
         this.scene.displayDamageText(enemy.x, enemy.y, damage, bullet.weaponStats.isCriticalHit);
+        enemy.tint = 0xEE4B2B;
+        this.scene.time.delayedCall(100, () => {
+            enemy.clearTint();
+        });
+    
         bullet.destroyBullet();
     }
+    
 
 
 

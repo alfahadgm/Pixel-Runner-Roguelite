@@ -7,14 +7,25 @@ class EnemyManager {
         this.endTimeOfLastWave = 0; // Add this new property
         this.enemies = this.scene.add.group({
             classType: Enemy,
-            maxSize: 100,
+            maxSize: 100000,
         });
         
         this.setupEnemyData();
-        this.setupWaveConfigurations();       
+        this.setupWaveConfigurations();     
+        this.initializeEnemyCounter();  
+    }
+
+    // FOR DEBUGGING
+    initializeEnemyCounter() {
+        this.enemyCounterText = this.scene.add.text(10, 10, 'Enemies: 0', { font: '16px Arial', fill: '#ffffff' }).setScrollFactor(0).setDepth(4);
+    }
+    updateEnemyCounterDisplay() {
+        const enemyCount = this.getEnemyCount();
+        this.enemyCounterText.setText('Enemies: ' + enemyCount);
     }
 
     updateEnemies(hero) {
+        this.updateEnemyCounterDisplay()
         this.enemies.getChildren().forEach(enemy => {
             enemy.follow(hero);
     
@@ -31,8 +42,18 @@ class EnemyManager {
 
     setupEnemyData() {
         this.enemyData = {
-            enemy1: { cost: 2, class: Enemy1, spawnProbability: 0.6 },
-            enemy2: { cost: 5, class: Enemy2, spawnProbability: 0.4 }
+            bat: { cost: 2, class: Bat, spawnProbability: 0.6 },
+            skeleton: { cost: 4, class: Skeleton, spawnProbability: 0.4 },
+            bee: { cost: 6, class: Bee, spawnProbability: 0.5 },
+            smallWorm: { cost: 6, class: SmallWorm, spawnProbability: 0.4 },
+            bigWorm: { cost: 8, class: BigWorm, spawnProbability: 0.3 },
+            eyeBall: { cost: 15, class: EyeBall, spawnProbability: 0.5 },
+            ghost: { cost: 15, class: Ghost, spawnProbability: 0.5 },
+            flower: { cost: 20, class: Flower, spawnProbability: 0.2 },
+            pumpking: { cost: 25, class: Pumpking, spawnProbability: 0.15 },
+            slime: { cost: 25, class: Slime, spawnProbability: 0.1 },
+            miniSlime: { cost: 20, class: MiniSlime, spawnProbability: 0.15 },
+            snake: { cost: 25, class: Snake, spawnProbability: 0.1 }
         };
     }
 
@@ -54,38 +75,144 @@ class EnemyManager {
     setupWaveConfigurations() {
         this.waveConfigurations = [
             { 
-                duration: 60, 
+                duration: 45, 
                 enemyBudget: 100, 
                 spawnCooldownRange: [2, 3], 
                 allowedEnemies: [
-                    { type: 'enemy1', probability: 1 } // Only 'enemy1' in this wave with 100% probability
+                    { type: 'bat', probability: 1 } // Only 'bat' in this wave with 100% probability
                 ]
             },
             { 
-                duration: 60, 
+                duration: 45, 
                 enemyBudget: 200, 
                 spawnCooldownRange: [1.8, 2.8], 
                 allowedEnemies: [
-                    { type: 'enemy1', probability: 0.7 }, // 70% chance for 'enemy1'
-                    { type: 'enemy2', probability: 0.3 }  // 30% chance for 'enemy2'
+                    { type: 'bat', probability: 0.7 }, // 70% chance for 'bat'
+                    { type: 'skeleton', probability: 0.3 }  // 30% chance for 'skeleton'
                 ]
             },
             { 
-                duration: 60, 
+                duration: 45, 
                 enemyBudget: 300, 
                 spawnCooldownRange: [1.5, 2.5], 
                 allowedEnemies: [
-                    { type: 'enemy1', probability: 0.5 }, // 50% chance for 'enemy1'
-                    { type: 'enemy2', probability: 0.5 }  // 50% chance for 'enemy2'
+                    { type: 'bat', probability: 0.5 }, // 50% chance for 'bat'
+                    { type: 'skeleton', probability: 0.5 }  // 50% chance for 'skeleton'
                 ]
             },
             { 
-                duration: 60, 
+                duration: 45, 
                 enemyBudget: 400, 
                 spawnCooldownRange: [1.3, 2.3], 
                 allowedEnemies: [
-                    { type: 'enemy1', probability: 0.4 }, // 40% chance for 'enemy1'
-                    { type: 'enemy2', probability: 0.6 }  // 60% chance for 'enemy2'
+                    { type: 'bat', probability: 0.4 }, // 40% chance for 'bat'
+                    { type: 'skeleton', probability: 0.6 }  // 60% chance for 'skeleton'
+                ]
+            },
+            {
+                duration: 60,
+                enemyBudget: 500,
+                spawnCooldownRange: [1.2, 2.2],
+                allowedEnemies: [
+                    { type: 'bat', probability: 0.3 },
+                    { type: 'skeleton', probability: 0.4 },
+                    { type: 'bee', probability: 0.3 }
+                ]
+            },
+            // Wave 6
+            {
+                duration: 60,
+                enemyBudget: 600,
+                spawnCooldownRange: [1.1, 2.1],
+                allowedEnemies: [
+                    { type: 'bee', probability: 0.6 },
+                    { type: 'smallWorm', probability: 0.4 }
+                ]
+            },
+            // Wave 8
+            {
+                duration: 60,
+                enemyBudget: 700,
+                spawnCooldownRange: [1, 2],
+                allowedEnemies: [
+                    { type: 'smallWorm', probability: 0.5 },
+                    { type: 'bigWorm', probability: 0.5 }
+                ]
+            },
+            // Wave 9
+            {
+                duration: 60,
+                enemyBudget: 750,
+                spawnCooldownRange: [0.9, 1.9],
+                allowedEnemies: [
+                    { type: 'eyeBall', probability: 0.7 },
+                    { type: 'bigWorm', probability: 0.3 }
+                ]
+            },
+            // Wave 11
+            {
+                duration: 60,
+                enemyBudget: 800,
+                spawnCooldownRange: [0.8, 1.8],
+                allowedEnemies: [
+                    { type: 'ghost', probability: 0.6 },
+                    { type: 'bee', probability: 0.4 }
+                ]
+            },
+            // Wave 13
+            {
+                duration: 60,
+                enemyBudget: 900,
+                spawnCooldownRange: [0.7, 1.7],
+                allowedEnemies: [
+                    { type: 'flower', probability: 0.5 },
+                    { type: 'ghost', probability: 0.5 }
+                ]
+            },
+            // Wave 14
+            {
+                duration: 60,
+                enemyBudget: 950,
+                spawnCooldownRange: [0.7, 1.6],
+                allowedEnemies: [
+                    { type: 'pumpking', probability: 0.6 },
+                    { type: 'flower', probability: 0.4 }
+                ]
+            },
+            // Wave 16
+            {
+                duration: 90,
+                enemyBudget: 1000,
+                spawnCooldownRange: [0.6, 1.5],
+                allowedEnemies: [
+                    { type: 'slime', probability: 0.7 },
+                    { type: 'pumpking', probability: 0.3 }
+                ]
+            },
+            {
+                duration: 90,
+                enemyBudget: 1050,
+                spawnCooldownRange: [0.6, 1.5],
+                allowedEnemies: [
+                    { type: 'miniSlime', probability: 1 } // 100% miniSlime
+                ]
+            },
+            {
+                duration: 95,
+                enemyBudget: 1100,
+                spawnCooldownRange: [0.5, 1.4],
+                allowedEnemies: [
+                    { type: 'snake', probability: 0.7 },
+                    { type: 'eyeBall', probability: 0.3 }
+                ]
+            },
+            {
+                duration: 100,
+                enemyBudget: 1200,
+                spawnCooldownRange: [0.5, 1.3],
+                allowedEnemies: [
+                    { type: 'snake', probability: 0.5 },
+                    { type: 'slime', probability: 0.5 }
                 ]
             }
             // ... add more wave configurations as needed
@@ -122,7 +249,7 @@ class EnemyManager {
         }
 
         
-        return 'enemy1';
+        return 'bat';
     }
 
     spawnEnemies(waveConfig) {
@@ -136,12 +263,18 @@ class EnemyManager {
             this.EnemiesBatch(Math.min(this.enemyBudget, BATCH_BUDGET));
         } else {
             const selectedEnemyType = this.selectEnemyTypeByProbability();
+            console.log('Selected Enemy Type:', selectedEnemyType); // Add this log
             const enemyInfo = this.enemyData[selectedEnemyType];
-    
+         // Throw Error if not found
+            if (enemyInfo && this.enemyBudget >= enemyInfo.cost) {
+
             if (this.enemyBudget >= enemyInfo.cost) {
                 this.spawnEnemyOfType(enemyInfo);
                 this.enemyBudget -= enemyInfo.cost;
             }
+        } else {
+            console.error('Enemy Info not found for:', selectedEnemyType);
+        }
         }
     
         const cooldown = Phaser.Math.Between(waveConfig.spawnCooldownRange[0] * 1000, waveConfig.spawnCooldownRange[1] * 1000);

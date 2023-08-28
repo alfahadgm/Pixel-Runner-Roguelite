@@ -6,6 +6,14 @@ class HeroStats {
         this.armor = armor;
         this.shield = shield;
         this.maxshield = 20;
+        this.shieldGenerationRate = 1;
+        this.shieldRegenerationInterval = 2000;
+        this.magnetSize = 40;
+        this.coinsModifier = 1;
+        this.ammoModifier = 1;
+        this.xpModifier = 1;
+        this.canDash = true;
+        this.dashCooldown = 5000;
         this.movementSpeed = movementSpeed;
         this.xp = xp;
         this.level = level;
@@ -15,10 +23,17 @@ class HeroStats {
     }
 
     generateXpThresholds() {
-        while(this.xpThresholds.length < 100) {
+        let multiplier = 1.5;
+        let decrementValue = 0.01; // This value will decrement the multiplier on each iteration.
+    
+        while (this.xpThresholds.length < 100) {
             let lastXp = this.xpThresholds[this.xpThresholds.length - 1];
-            let nextXp = Math.round(lastXp * 1.5 / 100) * 100; // Multiply by 1.5 and round to the nearest hundred.
+            let nextXp = Math.round(lastXp * multiplier / 100) * 100; 
+    
             this.xpThresholds.push(nextXp);
+    
+            // Decrease the multiplier but never let it go below 1.1
+            multiplier = Math.max(multiplier - decrementValue, 1.1);
         }
     }
 
@@ -30,6 +45,29 @@ class HeroStats {
             // Add other level-up logic if needed, e.g., increasing health, etc.
         } else {
             // Logic for when the hero is at max level.
+        }
+    }
+
+    startShieldRegeneration(interval = 1000) {
+        // Make sure we don't start multiple intervals for regeneration.
+        if (this.shieldRegenerationInterval) {
+            clearInterval(this.shieldRegenerationInterval);
+        }
+
+        this.shieldRegenerationInterval = setInterval(() => {
+            if (this.shield < this.maxshield) {
+                this.shield += this.shieldGenerationRate;
+                if (this.shield > this.maxshield) {
+                    this.shield = this.maxshield;
+                }
+            }
+        }, interval);
+    }
+
+    stopShieldRegeneration() {
+        if (this.shieldRegenerationInterval) {
+            clearInterval(this.shieldRegenerationInterval);
+            this.shieldRegenerationInterval = null;
         }
     }
 
@@ -101,13 +139,7 @@ heal(amount) {
 
     this.health = this.maxhealth;
     amount -= healthDeficit;
-    
-    const shieldDeficit = this.maxshield - this.shield;
-    if (amount <= shieldDeficit) {
-        this.shield += amount;
-    } else {
-        this.shield = this.maxshield;
-    }
+
 }
 
 }

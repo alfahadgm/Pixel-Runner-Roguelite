@@ -4,6 +4,8 @@ class AssetLoader {
     constructor(scene) {
         this.scene = scene;
         this.assetPath = './assets/';
+        this.musicVolume = 1;
+        this.musicFadeVolume = 0;
     }
 
     setPath(path = this.assetPath) {
@@ -11,20 +13,31 @@ class AssetLoader {
     }
 
     loadSprites() {
-        // Load hero sprites
+        // Load hero / enemy sprites
         this.loadSpriteSheet('hero', 'hero-sheet.png', { frameWidth: 32, frameHeight: 32 });
-        this.loadSpriteSheet('skeleton', 'skeleton-sheet.png', { frameWidth: 32, frameHeight: 32 });
-        this.loadSpriteSheet('bat', 'bat-sheet.png', { frameWidth: 32, frameHeight: 32 });
-        this.loadSpriteSheet('meleeSprite', 'hero-sheet.png', { frameWidth: 32, frameHeight: 32 });
-        this.loadSpriteSheet('rangedSprite', 'hero-sheet.png', { frameWidth: 32, frameHeight: 32 });
-        this.loadSpriteSheet('armoredSprite', 'hero-sheet.png', { frameWidth: 32, frameHeight: 32 });
+        this.loadSpriteSheet('skeleton', 'enemy/normal/skeleton.png', { frameWidth: 32, frameHeight: 32 });
+        this.loadSpriteSheet('bat', 'enemy/normal/bat.png', { frameWidth: 32, frameHeight: 32 });
+        this.loadSpriteSheet('bee', 'enemy/normal/bee.png', { frameWidth: 32, frameHeight: 32 });
+        this.loadSpriteSheet('big_worm', 'enemy/normal/big_worm.png', { frameWidth: 35, frameHeight: 50 });
+        this.loadSpriteSheet('eyeball', 'enemy/normal/eyeball.png', { frameWidth: 32, frameHeight: 38 });
+        this.loadSpriteSheet('ghost', 'enemy/normal/ghost.png', { frameWidth: 40, frameHeight: 46 });
+        this.loadSpriteSheet('flower', 'enemy/normal/flower.png', { frameWidth: 60, frameHeight: 76 });
+        this.loadSpriteSheet('pumpking', 'enemy/normal/pumpking.png', { frameWidth: 46, frameHeight: 46 });
+        this.loadSpriteSheet('slime', 'enemy/normal/slime.png', { frameWidth: 32, frameHeight: 32 });
+        this.loadSpriteSheet('small_worm', 'enemy/normal/small_worm.png', { frameWidth: 32, frameHeight: 32 });
+        this.loadSpriteSheet('snake', 'enemy/normal/snake.png', { frameWidth: 32, frameHeight: 32 });
+     //   this.loadSpriteSheet('meleeSprite', 'hero-sheet.png', { frameWidth: 32, frameHeight: 32 });
+     //   this.loadSpriteSheet('rangedSprite', 'hero-sheet.png', { frameWidth: 32, frameHeight: 32 });
+     //   this.loadSpriteSheet('armoredSprite', 'hero-sheet.png', { frameWidth: 32, frameHeight: 32 });
 
         // Load environment sprites
         this.loadSpriteSheet('sprWater', 'Map/sprWater.png', { frameWidth: 16, frameHeight: 16 });
         this.loadImage('sprSand', 'Map/sprSand.png');
         this.loadImage('sprGrass', 'Map/sprGrass.png');
         
-        // Load bullets sprites
+        // Load bullets and projectiles sprites
+        this.loadImage('beeP', 'enemy/projectiles/beeProjectile.png');
+        this.loadImage('eyeballP', 'enemy/projectiles/eyeballProjectile.png');
         this.loadImage('firearmBullet', 'bullet.png');
         this.loadSpriteSheet('energyBullet', 'plasmaRifle.png', { frameWidth: 16, frameHeight: 16 });
 
@@ -45,6 +58,11 @@ class AssetLoader {
         this.loadSpriteSheet('greenNumbers', 'numbers/yellow.png', { frameWidth: 6, frameHeight: 8 });
         this.loadSpriteSheet('greyNumbers', 'numbers/yellow.png', { frameWidth: 6, frameHeight: 8 });
         this.loadSpriteSheet('redNumbers', 'numbers/yellow.png', { frameWidth: 6, frameHeight: 8 });
+
+
+        //Sounds
+        this.scene.load.audio('music', [ 'sound/music.ogg', 'sound/music.mp3' ]);
+        this.scene.load.audio('musicFade', [ 'sound/music-fade.ogg', 'sound/music-fade.mp3' ]);
     }
 
     loadSpriteSheet(key, path, frameConfig) {
@@ -96,6 +114,27 @@ class AssetLoader {
         this.scene.anims.resumeAll();
     }
 
+    audio(){
+       this.music = this.scene.sound.add('music');
+       // music.on('volume', listener);
+       this.music.play({
+            loop: true
+        });
+       // music.setVolume(this.musicVolume);
+
+       this.musicFade = this.scene.sound.add('musicFade');
+       // musicFade.on('volume', listener);
+       this.musicFade.play({
+            loop: true
+        });
+       // musicFade.setVolume(this.musicFadeVolume);
+    }
+
+    updateAudio(){
+        this.music.setVolume(this.musicVolume*0.1);
+        this.musicFade.setVolume(this.musicFadeVolume*0.5);
+    }
+
     colorsSpriteSheets(){
         const colors = ['yellow', 'blue', 'green', 'grey', 'red'];
     
@@ -114,6 +153,7 @@ class AssetLoader {
     enemySpriteSheets(){
 
         /*----------- SKELETON-------------- */
+        // SKELETON IS SPECIAL CASE BECAUSE OF SHEET DIFFRENCE
         // Animation for skeleton walking down
         this.scene.anims.create({
             key: 'skeleton-walk-down',
@@ -138,20 +178,35 @@ class AssetLoader {
             repeat: -1
         });
 
-                /*----------- BAT-------------- */
 
+        const enemies = ['bat', 'bee', 'big_worm', 'eyeball', 'ghost', 'flower', 'pumpking', 'slime', 'small_worm', 'snake'];
 
-        // Animation for skeleton walking right
-        this.scene.anims.create({
-            key: 'bat-walk-right',
-            frames: this.scene.anims.generateFrameNumbers('bat', { frames: [0, 1, 2, 3] }),
-            frameRate: 8,
-            repeat: -1
+        // Load spritesheets for each enemy
+        enemies.forEach(enemy => {
+            this.loadSpriteSheet(enemy, `enemy/normal/${enemy}.png`, { frameWidth: 32, frameHeight: 32 });
         });
-     }
+        
+        // Create animations for each enemy
+        const animationDetails = [
+            { keySuffix: 'walk-up', frames: [0, 1, 2] },
+            { keySuffix: 'walk-down', frames: [6, 7, 8] },
+            { keySuffix: 'walk-right', frames: [9, 10, 11] }
+        ];
+        
+        enemies.forEach(enemy => {
+            animationDetails.forEach(detail => {
+                this.scene.anims.create({
+                    key: `${enemy}-${detail.keySuffix}`,
+                    frames: this.scene.anims.generateFrameNumbers(enemy, { frames: detail.frames }),
+                    frameRate: 8,
+                    repeat: -1
+                });
+            });
+        });
 
-     collectablesSpriteSheets(){
+    }
 
+    collectablesSpriteSheets(){
 
         /*----------- GoldCoin-------------- */
         this.scene.anims.create({
@@ -200,7 +255,8 @@ class AssetLoader {
         this.enemySpriteSheets();
         this.createWaterAnimations();
         this.colorsSpriteSheets();
-        this.collectablesSpriteSheets();    
+        this.collectablesSpriteSheets();  
+        this.audio();  
     }
 
 }

@@ -19,7 +19,7 @@ class IdleState extends State {
         }
 
         // transition to dash if pressing shift
-        if(Phaser.Input.Keyboard.JustDown(shift)) {
+        if(Phaser.Input.Keyboard.JustDown(shift) && hero.heroStats.canDash) {
             this.stateMachine.transition('dash');
             return;
         }
@@ -53,7 +53,7 @@ class MoveState extends State {
         }
 
         // transition to dash if pressing shift
-        if(Phaser.Input.Keyboard.JustDown(shift)) {
+        if(Phaser.Input.Keyboard.JustDown(shift) && hero.heroStats.canDash) {
             this.stateMachine.transition('dash');
             return;
         }

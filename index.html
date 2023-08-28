@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FSM</title>
+   <link rel="preload" as="font" href="./assets/font/PixelAE-Bold.ttf" type="font/ttf" />
+
     <script src="./lib/phaser.js"></script>
     <script src="./lib/perlin.js"></script>
     <script src="./lib/StateMachine.js"></script>
@@ -35,7 +37,14 @@
     <!-- Main Script -->
     <script type="module" src="./src/main.js"></script>
 
-
+<style>
+    @font-face {
+    font-family: PixelAE;
+    src:
+    url('./assets/font/PixelAE-Bold.ttf') format('truetype'),
+    url('./assets/font/PixelAE-Bold.ttf') format('truetype')
+}
+</style>
 </head>
 <body>
     <div id="phaser-game"></div>

@@ -31,10 +31,10 @@ class UI {
         this.armorText.setText(`Armor: ${Math.round(this.hero.heroStats.armor)}`);
         this.shieldText.setText(`Shield: ${Math.round(this.hero.heroStats.shield)}`);
         this.speedText.setText(`Speed: ${Math.round(this.hero.heroStats.movementSpeed * 100) / 100}`);
-        this.xpText.setText(`XP: ${this.hero.heroStats.xp}/${this.hero.heroStats.xpThresholds[this.hero.heroStats.level - 1]}`);
-        this.levelText.setText(`Level: ${this.hero.heroStats.level}`);
-        this.coinsText.setText(`Coins: ${this.hero.heroStats.coins}`);
-        this.ammoText.setText(`Ammo: ${this.hero.currentWeapon.weaponStats.currentMagazine} / ${this.hero.currentWeapon.weaponStats.totalAmmo}`);
+        this.xpText.setText(`XP: ${Math.round(this.hero.heroStats.xp)}/${Math.round(this.hero.heroStats.xpThresholds[this.hero.heroStats.level - 1])}`);
+        this.levelText.setText(`Level: ${Math.round(this.hero.heroStats.level)}`);
+        this.coinsText.setText(`Coins: ${Math.round(this.hero.heroStats.coins)}`);
+        this.ammoText.setText(`Ammo: ${Math.round(this.hero.currentWeapon.weaponStats.currentMagazine)} / ${Math.round(this.hero.currentWeapon.weaponStats.totalAmmo)}`);
     }
 
 
@@ -58,11 +58,13 @@ class UI {
         this.timerText.setText(`${minutes}:${seconds.toString().padStart(2, '0')}`);
     }
 
-    setupText(x, y, text, fontSize = '12px', fill = '#fff', align = 'center') { // Default align to 'center'
+    // UI CLASS SETUP TEXT
+    setupText(x, y, text, fontSize = '12px', fill = '#fff', align = 'center', fontFamily = 'PixelAE' ) { // Default align to 'center'
         return this.scene.add.text(x, y, text, {
+            fontFamily: fontFamily,
             fontSize: fontSize,
             fill: fill,
             align: align
-        }).setScrollFactor(0).setDepth(4);
+        }).setScrollFactor(0).setDepth(4).setStroke('#b4b4b4', 3);;
     }
 }

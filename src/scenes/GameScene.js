@@ -146,16 +146,31 @@ class GameScene extends Phaser.Scene {
     }
     
     dashHero() {
-        this.heroIsInvincible = true;
+        // Check if the hero can dash
+        if (this.hero.heroStats.canDash) {
+            this.heroIsInvincible = true;
     
-        // After 1.5 seconds, hero is no longer invincible.
-        this.time.addEvent({
-            delay: 1500,
-            callback: () => {
-                this.heroIsInvincible = false;
-            },
-            callbackScope: this
-        });
+            // After 1.5 seconds, the hero is no longer invincible.
+            this.time.addEvent({
+                delay: 1500,
+                callback: () => {
+                    this.heroIsInvincible = false;
+                },
+                callbackScope: this
+            });
+    
+            // Set the canDash flag to false so the hero can't dash immediately again
+            this.hero.heroStats.canDash = false;
+    
+            // After 5 seconds, reset the canDash flag so the hero can dash again
+            this.time.addEvent({
+                delay: this.hero.heroStats.dashCooldown,
+                callback: () => {
+                    this.hero.heroStats.canDash = true;
+                },
+                callbackScope: this
+            });
+        }
     }
     
 
@@ -192,7 +207,6 @@ class GameScene extends Phaser.Scene {
         this.keys.HKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.H);
         this.keys.KKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.K);
         this.keys.EnterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
-
         this.keys.WKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
         this.keys.WKey.on('down', () => {
             this.hero.switchWeapon();
@@ -253,6 +267,7 @@ class GameScene extends Phaser.Scene {
         this.totalTime += delta / 1000; 
         this.ui.updateTimerDisplay(); // We'll create this in the UI class
         this.ui.updateHeroUI();
+        this.assetLoader.updateAudio();
 
     }
 

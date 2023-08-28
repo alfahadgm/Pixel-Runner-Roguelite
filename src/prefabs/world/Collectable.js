@@ -11,8 +11,8 @@ class Collectable extends Phaser.Physics.Arcade.Sprite {
         this.setInteractive();
 
 
-        const bodyWidth = 50;
-        const bodyHeight = 50;
+        const bodyWidth = this.scene.hero.heroStats.magnetSize;
+        const bodyHeight = this.scene.hero.heroStats.magnetSize;
         const offsetX = (this.width - bodyWidth) / 2;
         const offsetY = (this.height - bodyHeight) / 2;
         
@@ -57,58 +57,58 @@ class Collectable extends Phaser.Physics.Arcade.Sprite {
     
         switch(this.type) {
             case 'goldCoin':
-                const goldValue = 100;
+                const goldValue = 500*player.heroStats.coinsModifier;
                 player.heroStats.modifyAttributeByValue('coins', goldValue);
-                displayText = `+${goldValue} COINS`;
+                displayText = `+${Math.round(goldValue)} COINS`;
                 break;
     
             case 'silverCoin':
-                const silverValue = 50;
+                const silverValue = 200*player.heroStats.coinsModifier;
                 player.heroStats.modifyAttributeByValue('coins', silverValue);
-                displayText = `+${silverValue} COINS`;
+                displayText = `+${Math.round(silverValue)} COINS`;
                 break;
     
             case 'bronzeCoin':
-                const bronzeValue = 25;
+                const bronzeValue = 100*player.heroStats.coinsModifier;
                 player.heroStats.modifyAttributeByValue('coins', bronzeValue);
-                displayText = `+${bronzeValue} COINS`;
+                displayText = `+${Math.round(bronzeValue)} COINS`;
                 break;
     
             case 'heart':
-                const healValue = 20;
+                const healValue = 10;
                 player.heroStats.heal(healValue);
-                displayText = `+${healValue} HP`;
+                displayText = `+${Math.round(healValue)} HP`;
                 break;
     
             case 'heartmax':
                 // Let's say it increases the max health by 10%.
-                const percentageIncrease = 10;
+                const percentageIncrease = 50;
                 player.heroStats.modifyAttributeByPercentage('health', percentageIncrease);
-                displayText = `+${percentageIncrease}% MAX HP`;
+                displayText = `+${percentageIncrease}% HP`;
                 break;
     
             case 'xplow':
-                const lowXPValue = 10;
+                const lowXPValue = 20*player.heroStats.xpModifier;
                 player.heroStats.modifyAttributeByValue('xp', lowXPValue);
-                displayText = `+${lowXPValue} XP`;
+                displayText = `+${Math.round(lowXPValue)} XP`;
                 break;
     
             case 'xpmid':
-                const midXPValue = 50;
+                const midXPValue = 100*player.heroStats.xpModifier;
                 player.heroStats.modifyAttributeByValue('xp', midXPValue);
-                displayText = `+${midXPValue} XP`;
+                displayText = `+${Math.round(midXPValue)} XP`;
                 break;
     
             case 'xphigh':
-                const highXPValue = 100;
+                const highXPValue = 500*player.heroStats.xpModifier;
                 player.heroStats.modifyAttributeByValue('xp', highXPValue);
-                displayText = `+${highXPValue} XP`;
+                displayText = `+${Math.round(highXPValue)} XP`;
                 break;
     
             case 'ammo':
-                const ammoValue = 10;
+                const ammoValue = 5*player.heroStats.ammoModifier;
                 player.currentWeapon.weaponStats.modifyAttributeByValue('totalAmmo', ammoValue);
-                displayText = `+${ammoValue} AMMO`;
+                displayText = `+${Math.round(ammoValue)} AMMO`;
                 break;
     
             default:

@@ -7,26 +7,31 @@ class Firearm extends Weapon {
     fire(x, y, currentTime) {
         if (this.isReadyToFire(currentTime)) {
             super.fire(x, y, currentTime);
-        } else {
-            this.outOfAmmoHandler();
         }
     }
     
     launchProjectile(x, y, direction) {
+        if (this.isOutOfAmmo()) {
+            this.outOfAmmoHandler();
+            return; // Do not continue if there's no ammo.
+        }
+
         super.launchProjectile(x, y, direction);
         this.weaponStats.currentMagazine--;
         this.lastFired = this.scene.time.now;
-        
-        if (this.isOutOfAmmo() && !this.isReloading) {
-            this.outOfAmmoHandler();
-        }
     }
     
     isReadyToFire(currentTime) {
         const isWeaponCooledDown = currentTime > this.lastFired + this.weaponStats.cooldown;
         const hasAmmo = !this.isOutOfAmmo();
         const notReloading = !this.isReloading;
-        return isWeaponCooledDown && hasAmmo && notReloading;
+        
+        if (!hasAmmo) {
+            this.outOfAmmoHandler();
+            return false; // Cannot fire without ammo
+        }
+
+        return isWeaponCooledDown && notReloading;
     }
 
     outOfAmmoHandler() {
@@ -36,30 +41,26 @@ class Firearm extends Weapon {
     }
 
     reload() {
-        console.log("Trying to reload...");
         
         if (this.weaponStats.totalAmmo <= 0) {
-            console.log("No ammo left to reload.");
             return;
         }
         
         this.isReloading = true;
         this.scene.time.delayedCall(this.weaponStats.reloadTime, () => {
-            console.log("Reloading...");
             
             const bulletsToReload = Math.min(this.weaponStats.magazineSize - this.weaponStats.currentMagazine, this.weaponStats.totalAmmo);
             this.weaponStats.currentMagazine += bulletsToReload;
             this.weaponStats.totalAmmo -= bulletsToReload;
             if (this.weaponStats.totalAmmo < 0) this.weaponStats.totalAmmo = 0;
             this.isReloading = false;
-    
-            console.log("Reloaded", bulletsToReload, "bullets.");
-        });
+            });
     }
 
     isOutOfAmmo() {
         return this.weaponStats.currentMagazine === 0;
     }
+
 
     createBullet(x, y) {
         return new FirearmBullet(this.scene, this.weaponStats, x, y);
@@ -74,7 +75,7 @@ class Firearm extends Weapon {
                 500,                // Bullet Speed
                 0.05,               // Critical Chance (5%)
                 2.0,                // Critical Damage Multiplier
-                200,                // Max Range
+                100,                // Max Range
                 300,                // Cooldown (300 units, e.g. milliseconds)
                 null,               // Energy Capacity (Not applicable for Pistol)
                 null,               // Current Energy Capacity (Not applicable for Pistol)
@@ -86,7 +87,7 @@ class Firearm extends Weapon {
                 null,               // Fuse Time (Not applicable for Pistol)
                 10,                 // Magazine Size
                 10,                 // Current Magazine
-                50,                 // Total Ammo
+                9999,                 // Total Ammo
                 600,                // Reload Time
                 "standard",         // Bullet Type
                 0.1                 // Penetration

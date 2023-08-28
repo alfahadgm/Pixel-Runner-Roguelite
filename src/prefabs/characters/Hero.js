@@ -17,6 +17,7 @@ class Hero extends Phaser.Physics.Arcade.Sprite {
         this.heroStats = new HeroStats(scene);
         this.lastFired = 0;
         this.body.setSize(15,20,true);
+        this.heroStats.startShieldRegeneration();
         // Weapon properties
         this.initializeWeapons();
     }
@@ -42,6 +43,7 @@ class Hero extends Phaser.Physics.Arcade.Sprite {
     setupAutoFireEvent() {
         if (this.autofireEvent) {
             this.autofireEvent.remove();
+            console.log("Previous autofire event removed.");
         }
         this.autofireEvent = this.scene.time.addEvent({
             delay: this.currentWeapon.weaponStats.cooldown,
@@ -49,7 +51,13 @@ class Hero extends Phaser.Physics.Arcade.Sprite {
             callbackScope: this,
             loop: true
         });
-        
+    }
+
+    updateAutoFireDelay() {
+        if (this.autofireEvent && this.autofireEvent.delay !== this.currentWeapon.weaponStats.cooldown) {
+            this.autofireEvent.remove();
+            this.setupAutoFireEvent();
+        }
     }
 
     pauseFiring() {
@@ -67,10 +75,8 @@ class Hero extends Phaser.Physics.Arcade.Sprite {
 
     fireWeapon() {    
         const currentTime = this.scene.time.now;
-        if (this.currentWeapon.isReadyToFire(currentTime)) {
-            this.fireBasedOnDirection();
-            this.lastFired = currentTime;
-        }
+        this.fireBasedOnDirection();
+        this.lastFired = currentTime;
     }
     
     canFire(currentTime) {
