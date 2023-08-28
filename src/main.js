@@ -17,6 +17,22 @@ const config = {
             Gravity: { x: 0, y: 0 }
         }
     },
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH
+    },
+    render: {
+        antialias: true,
+        antialiasGL: true,
+    },
+    fps: {
+        min: 10,
+        target: 60,
+        forceSetTimeOut: false,
+        deltaHistory: 10
+    },
+    
+    autoRound: false,
     scene: [ GameScene ]
 };
 

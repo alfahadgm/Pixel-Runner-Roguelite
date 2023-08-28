@@ -16,6 +16,7 @@ class GameScene extends Phaser.Scene {
     }
 
     preload() {
+
         this.assetLoader.setPath(this.assetPath);
         this.assetLoader.loadSprites();
     }
@@ -46,6 +47,7 @@ class GameScene extends Phaser.Scene {
     collect(hero, collectable) {
         collectable.activate();
     }
+
 
     displayDamageText(x, y, damage, isCritical) {
         damage = Math.round(damage); // Round to nearest whole number

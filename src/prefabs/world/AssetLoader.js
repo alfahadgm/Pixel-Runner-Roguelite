@@ -34,6 +34,7 @@ class AssetLoader {
         this.loadSpriteSheet('sprWater', 'Map/sprWater.png', { frameWidth: 16, frameHeight: 16 });
         this.loadImage('sprSand', 'Map/sprSand.png');
         this.loadImage('sprGrass', 'Map/sprGrass.png');
+        this.loadImage('spore', 'spore.png');
         
         // Load bullets and projectiles sprites
         this.loadImage('beeP', 'enemy/projectiles/beeProjectile.png');
