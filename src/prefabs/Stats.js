@@ -145,100 +145,17 @@ heal(amount) {
 }
 
 class WeaponStats {
-    constructor(
-        damage, bulletSpeed, criticalChance, criticalDamage, maxRange, cooldown,
-        // Energy weapon attributes
-        energyCapacity = null, currentEnergyCapacity= null, usagePerShot = null, rechargeRate = null, overheatThreshold = null,
-        // Explosive weapon attributes
-        blastRadius = null, fuseTime = null, knockback = null,
-        // Firearm attributes
-        magazineSize = null, currentMagazine=null , totalAmmo = null, reloadTime = null, bulletType = null, penetration = null
-    ) {
-        // Basic weapon attributes
+    constructor(damage, speed, criticalChance, criticalDamage, maxRange, cooldown, magazineSize, currentMagazine, totalAmmo, reloadTime, bulletType) {
         this.damage = damage;
-        this.bulletSpeed = bulletSpeed;
-        this.criticalChance = criticalChance; 
+        this.speed = speed;
+        this.criticalChance = criticalChance;
         this.criticalDamage = criticalDamage;
         this.maxRange = maxRange;
         this.cooldown = cooldown;
-
-        // Energy weapon attributes
-        this.energyCapacity = energyCapacity;
-        this.currentEnergyCapacity = currentEnergyCapacity;
-        this.usagePerShot = usagePerShot;
-        this.rechargeRate = rechargeRate;
-        this.overheatThreshold = overheatThreshold;
-
-        // Explosive weapon attributes
-        this.blastRadius = blastRadius;
-        this.fuseTime = fuseTime;
-        this.knockback = knockback;
-
-        // Firearm attributes
         this.magazineSize = magazineSize;
         this.currentMagazine = currentMagazine;
         this.totalAmmo = totalAmmo;
         this.reloadTime = reloadTime;
-        this.bulletType = bulletType; // e.g., "standard", "hollow-point", "armor-piercing"
-        this.penetration = penetration; // A value representing bullet penetration (can be a percentage or flat value)
+        this.bulletType = bulletType;
     }
-
-    modifyAttributeByPercentage(attribute, percentage) {
-        if (this[attribute] !== undefined) {
-            this[attribute] *= (1 + (percentage / 100));
-        } else {
-            
-        }
-    }
-
-    modifyAttributeByValue(attribute, value) {
-        if (this[attribute] !== undefined) {
-            this[attribute] += value;
-        } else {
-            
-        }
-    }
-
-    getDamage(distanceFromImpact = 0) {
-        let finalDamage = this.damage;
-        
-        // Critical hit chance
-        if (this.criticalChance != null) {
-            const isCriticalHit = Math.random() < this.criticalChance;
-            if (isCriticalHit && this.criticalDamage != null) {
-                finalDamage *= this.criticalDamage;
-            }
-        }
-        
-        // For Energy Weapons: Overheating Mechanism
-        if (this.energyCapacity != null && this.overheatThreshold != null) {
-            const energyLeftPercentage = this.energyCapacity / 100;
-            if (energyLeftPercentage < this.overheatThreshold) {
-                finalDamage *= 0.75; // Example: Reduce damage by 25% when overheated
-            }
-        }
-        
-        // For Explosive Weapons: Proximity Damage Calculation
-        if (this.blastRadius != null) {
-            const proximityFactor = 1 - (distanceFromImpact / this.blastRadius);
-            finalDamage += finalDamage * proximityFactor; // The closer the enemy to the center of the blast, the more damage
-        }
-        
-        // For Firearms: Bullet Type Damage Modification
-        if (this.bulletType != null) {
-            switch (this.bulletType) {
-                case "hollow-point":
-                    finalDamage *= 1.2; // Example: Increase damage by 20%
-                    break;
-                case "armor-piercing":
-                    finalDamage *= 0.9; // Example: Reduce damage but penetrates armor
-                    break;
-                default:
-                    // Standard bullet, no modification
-                    break;
-            }
-        }
-        
-        return finalDamage;
-    }
-}    
+}

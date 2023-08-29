@@ -1,50 +1,66 @@
-
 class GameScene extends Phaser.Scene {
     constructor() {
         super("GameScene");
+
+        // Paths and Sizes
         this.assetPath = './assets/';
         this.chunkSize = 16;
         this.tileSize = 16;
-        this.totalTime = 0; 
-        this.chunkManager = new ChunkManager(this);
-        this.assetLoader = new AssetLoader(this);
+
+        // State Variables
+        this.totalTime = 0;
         this.isGamePaused = false;
         this.enemyOnCooldown = false;
         this.heroIsTouchingenemy = false;
         this.heroIsInvincible = false;
-        this.cameraLerpFactor = 0.1;  
+
+        // Class Instances
+        this.chunkManager = new ChunkManager(this);
+        this.assetLoader = new AssetLoader(this);
+
+        // Misc
+        this.cameraLerpFactor = 0.1;
     }
 
     preload() {
-
         this.assetLoader.setPath(this.assetPath);
         this.assetLoader.loadSprites();
     }
 
     create() {
         this.initWorldView();
+        this.initEntities();
+        this.initPhysics();
+        this.initCamera();
+        this.initHeroFSM();
+        this.initKeyboardControls();
+    }
+
+    initEntities() {
         this.hero = new Hero(this, this.followPoint.x, this.followPoint.y, 'hero', 0, 'down').setDepth(2);
         this.collectableManager = new CollectableManager(this);
-        this.enemyManager = new EnemyManager(this); // Make enemyManager a property of the class.
-        this.ui = new UI(this, this.hero); // Make enemyManager a property of the class.
-        this.utils = new Utils(this); // Make enemyManager a property of the class.
-        this.upgrades = new Upgrades(this, this.hero); // Initialize the upgrades system
+        this.enemyManager = new EnemyManager(this);
+        this.ui = new UI(this, this.hero);
+        this.utils = new Utils(this);
+        this.upgrades = new Upgrades(this, this.hero);
+    }
 
-        // Check for collisions between bullet and enemy
+    initPhysics() {
         this.physics.add.overlap(this.hero, this.enemyManager.enemies, this.EnemyhitHero, null, this);
         this.physics.add.overlap(this.hero, this.collectableManager.collectablesGroup, this.collect, null, this);
         this.physics.add.collider(this.enemyManager.enemies, this.enemyManager.enemies, null, null, this);
-
-
-       // this.physics.add.collider(this.hero.currentWeapon.bullets, this.enemyManager.enemies, this.bulletHitenemy, null, this);
-        this.heroFSM = this.createHeroFSM();
-        this.assetLoader.createAllAnimations();
-        this.initKeyboardControls();
-        this.cameras.main.startFollow(this.hero, true, this.cameraLerpFactor, this.cameraLerpFactor);
-        
     }
 
-    collect(hero, collectable) {
+    initCamera() {
+        this.cameras.main.startFollow(this.hero, true, this.cameraLerpFactor, this.cameraLerpFactor);
+    }
+
+    initHeroFSM() {
+        this.heroFSM = this.createHeroFSM();
+        this.assetLoader.createAllAnimations();
+    }
+
+    collect(collectable) {
         collectable.activate();
     }
 
@@ -96,20 +112,7 @@ class GameScene extends Phaser.Scene {
         });
     }
 
-    findNearestEnemy(hero) {
-        let nearestEnemy = null;
-        let nearestDistance = Infinity;
-    
-        this.enemyManager.enemies.getChildren().forEach(enemy => {
-            const distance = Phaser.Math.Distance.Between(hero.x, hero.y, enemy.x, enemy.y);
-            if (distance < nearestDistance) {
-                nearestDistance = distance;
-                nearestEnemy = enemy;
-            }
-        });
-    
-        return nearestEnemy;
-    }
+
 
     EnemyhitHero(hero, enemy) {
         // Only proceed if the enemy is not on a cooldown and the hero isn't already tinted.
@@ -252,12 +255,6 @@ class GameScene extends Phaser.Scene {
                     bullet.update();
                 }
             });
-        }
-
-        for (let weapon of this.hero.weapons) {
-            if (weapon instanceof EnergyWeapon) {
-                weapon.update(time);
-            }
         }
 
         this.collectableManager.collectablesGroup.getChildren().forEach(collectable => {

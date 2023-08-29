@@ -1,9 +1,13 @@
-
-//Hero.js
 class Hero extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, x, y, texture, frame, direction) {
-        super(scene, x, y, texture, frame); 
+        super(scene, x, y, texture, frame);
         
+        this.initProperties(scene, direction);
+        this.initializeWeapons();
+        this.heroStats.startShieldRegeneration();
+    }
+
+    initProperties(scene, direction) {
         // Add hero to scene
         scene.add.existing(this);
         scene.physics.add.existing(this);
@@ -17,93 +21,85 @@ class Hero extends Phaser.Physics.Arcade.Sprite {
         this.heroStats = new HeroStats(scene);
         this.lastFired = 0;
         this.body.setSize(15,20,true);
-        this.heroStats.startShieldRegeneration();
-        // Weapon properties
-        this.initializeWeapons();
     }
 
     initializeWeapons() {
         this.weapons = WeaponFactory.getWeapons(this.scene);
         this.currentWeaponIndex = 0;
         this.currentWeapon = this.weapons[this.currentWeaponIndex];
-
-        
-        // Autofire event setup
         this.setupAutoFireEvent();
     }
 
-
-    setupText(x, y, text) {
-        return this.scene.add.text(x, y, text, {
-            fontSize: '12px',
-            fill: '#ffffff'
-        }).setScrollFactor(0).setDepth(4);
-    }
-
     setupAutoFireEvent() {
-        if (this.autofireEvent) {
-            this.autofireEvent.remove();
-            console.log("Previous autofire event removed.");
-        }
+        this.autofireEvent?.remove();
+
         this.autofireEvent = this.scene.time.addEvent({
             delay: this.currentWeapon.weaponStats.cooldown,
-            callback: this.fireWeapon,
+            callback: this.attackWithWeapon,
             callbackScope: this,
             loop: true
         });
     }
 
     updateAutoFireDelay() {
-        if (this.autofireEvent && this.autofireEvent.delay !== this.currentWeapon.weaponStats.cooldown) {
-            this.autofireEvent.remove();
+        if (this.autofireEvent.delay !== this.currentWeapon.weaponStats.cooldown) {
             this.setupAutoFireEvent();
         }
     }
 
+    toggleFiringStatus(status) {
+        if (this.autofireEvent) {
+            this.autofireEvent.paused = status;
+        }
+    }
+
     pauseFiring() {
-        if (this.autofireEvent) {
-            this.autofireEvent.paused = true;
-        }
+        this.toggleFiringStatus(true);
     }
-    
+
     resumeFiring() {
-        if (this.autofireEvent) {
-            this.autofireEvent.paused = false;
-        }
+        this.toggleFiringStatus(false);
     }
 
-
-    fireWeapon() {    
-        const currentTime = this.scene.time.now;
-        this.fireBasedOnDirection();
-        this.lastFired = currentTime;
-    }
-    
     canFire(currentTime) {
         return currentTime > this.lastFired + this.currentWeapon.weaponStats.cooldown;
     }
-    
+
     reloadAndSetCooldown(currentTime) {
         this.currentWeapon.reload();
-        
         this.lastFired = currentTime;  // Update the timestamp even if reloading
     }
-    
-    fireBasedOnDirection() {
-        let {x, y} = this.getDirectionOffsets();
-        this.currentWeapon.fire(this.x + x, this.y + y,this.scene.time.now);
-    }
-    getDirectionOffsets() {
-        let offsets = {x: 0, y: 0};
-        
-        switch (this.direction) {
-            case 'up': offsets.y = -10; break;
-            case 'down': offsets.y = 10; break;
-            case 'left': offsets.x = -10; break;
-            case 'right': offsets.x = 10; break;
-        }
 
-        return offsets;
+    attackWithWeapon() {
+        let nearestEnemy = this.findNearestEnemy();
+
+        if (nearestEnemy) {
+            const distanceToTarget = Phaser.Math.Distance.Between(this.x, this.y, nearestEnemy.x, nearestEnemy.y);
+            if (distanceToTarget <= this.currentWeapon.weaponStats.maxRange) {
+                let directionVector = {
+                    x: nearestEnemy.x - this.x,
+                    y: nearestEnemy.y - this.y
+                };
+                
+                this.currentWeapon.fireFromPosition(this.x, this.y, directionVector, this);
+            }
+        }
+    }
+
+    findNearestEnemy() {
+        let nearestEnemy = null;
+        let nearestDistance = Infinity;
+
+        this.scene.enemyManager.enemies.getChildren().forEach(enemy => {
+            const distance = Phaser.Math.Distance.Between(this.x, this.y, enemy.x, enemy.y);
+            
+            if (distance < nearestDistance) {
+                nearestDistance = distance;
+                nearestEnemy = enemy;
+            }
+        });
+        
+        return nearestEnemy;
     }
 
     switchWeapon() {
@@ -111,10 +107,13 @@ class Hero extends Phaser.Physics.Arcade.Sprite {
         this.currentWeapon = this.weapons[this.currentWeaponIndex];
 
         this.setupAutoFireEvent();
-        // Reset the lastFired timestamp to allow immediate firing.
         this.lastFired = this.scene.time.now - this.currentWeapon.weaponStats.cooldown;
+    }
 
-        
+    setupText(x, y, text) {
+        return this.scene.add.text(x, y, text, {
+            fontSize: '12px',
+            fill: '#ffffff'
+        }).setScrollFactor(0).setDepth(4);
     }
 }
-

@@ -79,7 +79,7 @@ class EnemyManager {
                 enemyBudget: 100, 
                 spawnCooldownRange: [2, 3], 
                 allowedEnemies: [
-                    { type: 'flower', probability: 1 } // Only 'bat' in this wave with 100% probability
+                    { type: 'bat', probability: 1 } // Only 'bat' in this wave with 100% probability
                 ]
             },
             { 
@@ -263,7 +263,6 @@ class EnemyManager {
             this.EnemiesBatch(Math.min(this.enemyBudget, BATCH_BUDGET));
         } else {
             const selectedEnemyType = this.selectEnemyTypeByProbability();
-            console.log('Selected Enemy Type:', selectedEnemyType); // Add this log
             const enemyInfo = this.enemyData[selectedEnemyType];
          // Throw Error if not found
             if (enemyInfo && this.enemyBudget >= enemyInfo.cost) {

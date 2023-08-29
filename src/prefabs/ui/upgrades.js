@@ -20,19 +20,17 @@ class Upgrades {
     }
 
     createTintedBackground() {
-        const cam = this.scene.cameras.main;
-    
         if (!this.tintedBackground) {
             this.tintedBackground = this.scene.add.graphics({ fillStyle: { color: 0x000000, alpha: 0.7 } }).setScrollFactor(0).setDepth(5);
         }
-        
-        this.updateTintedBackgroundSizeAndPosition(cam);
-        this.tintedBackground.visible = true;  // Ensure the tintedBackground is visible
+        this.updateTintedBackgroundSizeAndPosition();
+        this.tintedBackground.visible = true;
     }
     
-    updateTintedBackgroundSizeAndPosition(cam) {
+    updateTintedBackgroundSizeAndPosition() {
+        const cam = this.scene.cameras.main;
         this.tintedBackground.clear();
-        this.tintedBackground.fillRect(0, 0, cam.width, cam.height);  // Drawing from (0, 0)
+        this.tintedBackground.fillRect(0, 0, cam.width, cam.height);
     }
     
 
@@ -93,37 +91,42 @@ class Upgrades {
         const cam = this.scene.cameras.main;
     
         // Define initial starting position.
+        
         const spacing = 20;
-        const centeredX = cam.scrollX + cam.width / 2;  // Center of the camera.
+        const centeredX = cam.width / 2;  // Center of the camera's width.
+        const centeredY = cam.height / 2; // Center of the camera's height.
     
         this.weaponShopPanel = this.scene.add.group();
-        const weaponText = this.scene.add.text(centeredX, cam.scrollY + spacing, 'Weapon Shop', { fontSize: '32px',  fontFamily: 'PixelAE' }).setOrigin(0.5).setDepth(6);  // Doubled font size and set the origin to center the text.
+    
+
+        const weaponText = this.scene.add.text(centeredX, centeredY - (cam.height / 4), 'Weapon Shop', { fontSize: '32px',  fontFamily: 'PixelAE' }).setScrollFactor(0).setOrigin(0.5).setDepth(6);
         this.weaponShopPanel.add(weaponText);
     
         // Define Resume button properties.
         const resumeFontSize = '32px';
         const resumePadding = 50;  // Padding from the bottom.
-
-        let startX = cam.scrollX + 10;  // Padding from the left.
-        let startY = cam.scrollY + weaponText.height + 2 * spacing;  // Below the Weapon Shop text.
+    
+        let startX = 10;  // Padding from the left.
+        let startY = weaponText.y + weaponText.height + spacing;  // Below the Weapon Shop text.
     
         let currentX = startX;
         let currentY = startY;
-
+    
         // Step 1: Define a method to update the coin display
         const updateCoinDisplay = () => {
             coinText.setText(`Coins: ${Math.round(this.hero.heroStats.coins)}`);
         };
-
+    
         // Step 2: Add the coin display to the panel
-        let coinX = cam.scrollX + cam.width - 10; // Padding from the right
-        let coinY = cam.scrollY + spacing;
-
+        let coinX = cam.width - 10; // Padding from the right
+        let coinY = weaponText.y - spacing;
+    
         const coinText = this.scene.add.text(coinX, coinY, '', { fontSize: '16px', fill: '#FFD700' }) // Color set to gold
             .setOrigin(1, 0) // Aligned to the top-right corner
+            .setScrollFactor(0)
             .setDepth(6);
         this.weaponShopPanel.add(coinText);
-
+    
         updateCoinDisplay(); // Initial display
     
     
@@ -141,6 +144,9 @@ class Upgrades {
         ];
     
         attributes.forEach((attr, index) => {
+                // Use stored cost if available or default cost otherwise
+            attr.cost = this.hero.currentWeapon.weaponUpgradeCosts[attr.property] || attr.cost;
+            this.hero.currentWeapon.weaponUpgradeCosts[attr.property] = attr.cost;
             if (index === (attributes.length / 2)) {  // Assuming there are even number of attributes.
                 currentX += cam.width / 2;
                 currentY = startY;
@@ -168,7 +174,10 @@ class Upgrades {
                     
                     // Deduct coins from hero
                     this.hero.heroStats.coins -= attr.cost;
-            
+
+                    // Update stored cost
+                    this.hero.currentWeapon.weaponUpgradeCosts[attr.property] = attr.cost * attr.costModifier;
+
                     text.setText(`${attr.name}: ${this.hero.currentWeapon.weaponStats[attr.property]}`).setDepth(6);
                     attr.cost *= attr.costModifier;
             
@@ -195,15 +204,18 @@ class Upgrades {
             if (index === (attributes.length / 2) - 1) {
                 currentY = cam.scrollY + cam.height / 4;
             }
+            text.setScrollFactor(0); // Make text have static position
+            button.setScrollFactor(0); // Make button have static position
         });
 
     // Calculate the position for the Resume button
     let resumeButtonX = centeredX;
-    let resumeButtonY = cam.scrollY + cam.height - resumePadding;  // Place it above the padding from the bottom
+    let resumeButtonY = cam.height - resumePadding;  // Place it above the padding from the bottom
 
     // Create the Resume button
     let resumeButton = this.scene.add.text(resumeButtonX, resumeButtonY, 'Resume', { fontSize: resumeFontSize, fill: '#FF5733' })
         .setOrigin(0.5)  // Center the text
+        .setScrollFactor(0) // Make button have static position
         .setInteractive()
         .setDepth(6);
     this.weaponShopPanel.add(resumeButton);

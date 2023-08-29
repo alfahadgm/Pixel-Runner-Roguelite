@@ -206,19 +206,6 @@ class SmallWorm extends Enemy {
         const CANPROJECTILE = false;
         super(scene, x, y, TEXTURE, NAME, HEALTH, DAMAGE, SPEED, BODYSIZE_WIDTH, BODYSIZE_HEIGHT, CANPROJECTILE, RARITY);
     }
-
-    follow(target) {
-        const distanceToTarget = this.scene.utils.calculateDistance(this.x, this.y, target.x, target.y);
-        let speedModifier = 1;
-
-        // Special Behavior: If within 100 units, move 1.5x faster
-        if (distanceToTarget < 100) {
-            speedModifier = 1.5;
-        }
-
-        super.follow(target);
-        this.speed *= speedModifier; // Adjust the speed
-    }
 }
 
 
@@ -235,17 +222,6 @@ class BigWorm extends Enemy {
         const BODYSIZE_HEIGHT = 10;
         const CANPROJECTILE = false;
         super(scene, x, y, TEXTURE, NAME, HEALTH, DAMAGE, SPEED, BODYSIZE_WIDTH, BODYSIZE_HEIGHT, CANPROJECTILE, RARITY);
-    }
-
-    follow(target) {
-        // Special Behavior: 10% chance to teleport closer
-        if (Math.random() < 0.10) {
-            const dx = (target.x - this.x) * 0.5;
-            const dy = (target.y - this.y) * 0.5;
-            this.x += dx;
-            this.y += dy;
-        }
-        super.follow(target);
     }
 }
 // Wave 10

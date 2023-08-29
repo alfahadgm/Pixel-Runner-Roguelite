@@ -1,48 +1,43 @@
-
 class Weapon {
-    constructor(scene, weaponStats, color, name) { // <-- Remove cooldown parameter here
+    constructor(scene, weaponStats, name) {
         this.scene = scene;
         this.weaponStats = weaponStats;
-        this.color = color;
         this.name = name;
-        this.lastFired = 0;
-
+        this.lastShotTime = 0;
+        this.weaponUpgradeCosts = {};
     }
 
-    fire(x, y, currentTime) {
-        if (this.isReadyToFire(currentTime)) {
-            const nearestEnemy = this.scene.findNearestEnemy(this.scene.hero);
-            if (nearestEnemy) {
-            
-                const distanceToEnemy = Math.sqrt((nearestEnemy.x - x) ** 2 + (nearestEnemy.y - y) ** 2);
-                console.log("Budget : " + this.scene.enemyManager.enemyBudget);
+    canShoot(cooldownTime) {
+        const currentTime = this.scene.time.now;
+        if (currentTime - this.lastShotTime >= cooldownTime) {
+            this.lastShotTime = currentTime;
+            return true;
+        }
+        return false;
+    }
 
-                if (distanceToEnemy <= this.weaponStats.maxRange) {
-                    const direction = this.getDirectionToTarget(x, y, nearestEnemy.x, nearestEnemy.y);
-                    this.launchProjectile(x, y, direction);
-                } else {
-            }
-            }
+    fireFromPosition(x, y, direction, hero) {
+        const cooldownTime = this.weaponStats.cooldown;
+        if (this.canShoot(cooldownTime)) {
+            const bullet = new Bullet(this.scene, this.weaponStats.bulletType, x, y);
+            bullet.shootInDirection(x, y, direction);
         }
     }
 
-    launchProjectile(x, y, direction) {
-        
-        let bullet = this.createBullet(x, y);
-        bullet.fire(x, y, direction);
+    reload() {
+        if (this.weaponStats.totalAmmo >= this.weaponStats.magazineSize) {
+            this.weaponStats.totalAmmo -= this.weaponStats.magazineSize;
+            this.weaponStats.currentMagazine = this.weaponStats.magazineSize;
+        } else {
+            this.weaponStats.currentMagazine = this.weaponStats.totalAmmo;
+            this.weaponStats.totalAmmo = 0;
+        }
     }
 
-    isReadyToFire(currentTime) {
-        
-        
-        
-        return currentTime > this.lastFired + this.weaponStats.cooldown;
+    hasAmmo() {
+        return this.weaponStats.currentMagazine > 0;
     }
 
-    createBullet(x, y) {
-        return new Bullet(this.scene, this.weaponStats, x, y, 'bullet');
-    }
-    
     getDirectionToTarget(sourceX, sourceY, targetX, targetY) {
         const diffX = targetX - sourceX;
         const diffY = targetY - sourceY;
@@ -52,21 +47,28 @@ class Weapon {
             velocityY: diffY / magnitude
         };
     }
-    getDamage() {
-        // Specific logic for Rifle's damage
-        return super.getDamage();  // This calls the base method, but you can add additional logic or replace entirely.
-    }
 
+    getDamage() {
+        return this.weaponStats.damage;
+    }
 }
 
 class WeaponFactory {
     static getWeapons(scene) {
+        const pistolBulletType = new BulletType(
+            "pistolBullet", 
+            500, 
+            "Standard", {},
+            "Standard", {},
+            "Standard", {},
+            "Standard", {},
+            "Standard", {}
+        );
 
-        return [
-            new Pistol(scene, 0xFFFF00),
-            // new PlasmaRifle(scene, 0x0000FF),
-           // new HandGrenade(scene, 0x888888)
-        ];
+        const pistolStats = new WeaponStats(
+            20, 5, 0.1, 2.0, 300, 500, 10, 10, 100, 1.2, pistolBulletType
+        );
+
+        return [new Weapon(scene, pistolStats, "Pistol")];
     }
 }
-

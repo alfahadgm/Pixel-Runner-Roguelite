@@ -39,7 +39,7 @@ class AssetLoader {
         // Load bullets and projectiles sprites
         this.loadImage('beeP', 'enemy/projectiles/beeProjectile.png');
         this.loadImage('eyeballP', 'enemy/projectiles/eyeballProjectile.png');
-        this.loadImage('firearmBullet', 'bullet.png');
+        this.loadImage('pistolBullet', 'bullet.png');
         this.loadSpriteSheet('energyBullet', 'plasmaRifle.png', { frameWidth: 16, frameHeight: 16 });
 
         // Load collectables sprites
