@@ -79,7 +79,7 @@ class EnemyManager {
                 enemyBudget: 100, 
                 spawnCooldownRange: [2, 3], 
                 allowedEnemies: [
-                    { type: 'flower', probability: 1 } // Only 'bat' in this wave with 100% probability
+                    { type: 'bat', probability: 1 } // Only 'bat' in this wave with 100% probability
                 ]
             },
             { 
