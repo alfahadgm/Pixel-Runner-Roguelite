@@ -19,7 +19,7 @@ class Weapon {
     fireFromPosition(x, y, direction, hero) {
         const cooldownTime = this.weaponStats.cooldown;
         if (this.canShoot(cooldownTime)) {
-            const bullet = new Bullet(this.scene, this.weaponStats.bulletType, x, y);
+            const bullet = new Bullet(this.scene, this.weaponStats.bulletBlueprint, x, y);
             bullet.shootInDirection(x, y, direction);
         }
     }
@@ -53,22 +53,23 @@ class Weapon {
     }
 }
 
+// Here is the new weapon call
 class WeaponFactory {
     static getWeapons(scene) {
-        const pistolBulletType = new BulletType(
+        const pistolBulletBlueprint = new BulletBlueprint(
             "pistolBullet", 
             500, 
-            "Standard", {},
-            "Standard", {},
-            "Standard", {},
-            "Standard", {},
-            "Standard", {}
+            'Electric', { damageEverySecond: 10, stunDuration: 150,}, 
+            'Ricochet', { bounces: 1, damageModifierEachBounce: 0.75}, 
+            'Leeching', { leechPercentage: 5 },
+            'Steel', { knockBackAmount: 5 }
         );
 
         const pistolStats = new WeaponStats(
-            20, 5, 0.1, 2.0, 300, 500, 10, 10, 100, 1.2, pistolBulletType
+            20, 5, 0.1, 2.0, 300, 500, 10, 10, 100, 1.2, pistolBulletBlueprint
         );
 
+        
         return [new Weapon(scene, pistolStats, "Pistol")];
     }
 }

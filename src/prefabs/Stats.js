@@ -145,7 +145,7 @@ heal(amount) {
 }
 
 class WeaponStats {
-    constructor(damage, speed, criticalChance, criticalDamage, maxRange, cooldown, magazineSize, currentMagazine, totalAmmo, reloadTime, bulletType) {
+    constructor(damage, speed, criticalChance, criticalDamage, maxRange, cooldown, magazineSize, currentMagazine, totalAmmo, reloadTime, bulletBlueprint) {
         this.damage = damage;
         this.speed = speed;
         this.criticalChance = criticalChance;
@@ -156,6 +156,6 @@ class WeaponStats {
         this.currentMagazine = currentMagazine;
         this.totalAmmo = totalAmmo;
         this.reloadTime = reloadTime;
-        this.bulletType = bulletType;
+        this.bulletBlueprint = bulletBlueprint;
     }
 }
