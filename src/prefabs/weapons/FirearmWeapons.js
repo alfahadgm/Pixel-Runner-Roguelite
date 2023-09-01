@@ -22,7 +22,6 @@ class Firearm extends Weapon {
     }
     
     isReadyToFire(currentTime) {
-        const isWeaponCooledDown = currentTime > this.lastFired + this.weaponStats.cooldown;
         const hasAmmo = !this.isOutOfAmmo();
         const notReloading = !this.isReloading;
         
@@ -30,8 +29,8 @@ class Firearm extends Weapon {
             this.outOfAmmoHandler();
             return false; // Cannot fire without ammo
         }
-
-        return isWeaponCooledDown && notReloading;
+    
+        return notReloading;
     }
 
     outOfAmmoHandler() {
@@ -71,10 +70,11 @@ class Firearm extends Weapon {
         constructor(scene, color, name="Pistol") {
             // Creating a weaponStatsInstance with the following parameters:
             const weaponStatsInstance = new WeaponStats(
+                scene,
                 15,                 // Damage
                 500,                // Bullet Speed
-                0.05,               // Critical Chance (5%)
-                2.0,                // Critical Damage Multiplier
+                0.02,               // Critical Chance (5%)
+                1.2,                // Critical Damage Multiplier
                 100,                // Max Range
                 300,                // Cooldown (300 units, e.g. milliseconds)
                 null,               // Energy Capacity (Not applicable for Pistol)
@@ -85,9 +85,9 @@ class Firearm extends Weapon {
                 null,               // Blast Radius (Not applicable for Pistol)
                 null,               // knockback
                 null,               // Fuse Time (Not applicable for Pistol)
-                10,                 // Magazine Size
+                9,                 // Magazine Size
                 10,                 // Current Magazine
-                9999,                 // Total Ammo
+                9999,               // Total Ammo
                 600,                // Reload Time
                 "standard",         // Bullet Type
                 0.1                 // Penetration

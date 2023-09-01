@@ -49,7 +49,7 @@ class EnemyManager {
             bigWorm: { cost: 8, class: BigWorm, spawnProbability: 0.3 },
             eyeBall: { cost: 15, class: EyeBall, spawnProbability: 0.5 },
             ghost: { cost: 15, class: Ghost, spawnProbability: 0.5 },
-            flower: { cost: 20, class: Flower, spawnProbability: 0.2 },
+            flower: { cost: 30, class: Flower, spawnProbability: 0.2 },
             pumpking: { cost: 25, class: Pumpking, spawnProbability: 0.15 },
             slime: { cost: 25, class: Slime, spawnProbability: 0.1 },
             miniSlime: { cost: 20, class: MiniSlime, spawnProbability: 0.15 },
@@ -105,8 +105,9 @@ class EnemyManager {
                 enemyBudget: 400, 
                 spawnCooldownRange: [1.3, 2.3], 
                 allowedEnemies: [
-                    { type: 'bat', probability: 0.4 }, // 40% chance for 'bat'
-                    { type: 'skeleton', probability: 0.6 }  // 60% chance for 'skeleton'
+                    { type: 'bat', probability: 0.3 }, // 40% chance for 'bat'
+                    { type: 'skeleton', probability: 0.6 },  // 60% chance for 'skeleton'
+                    { type: 'bee', probability: 0.1 }
                 ]
             },
             {
@@ -114,9 +115,9 @@ class EnemyManager {
                 enemyBudget: 500,
                 spawnCooldownRange: [1.2, 2.2],
                 allowedEnemies: [
-                    { type: 'bat', probability: 0.3 },
+                    { type: 'bat', probability: 0.2 },
                     { type: 'skeleton', probability: 0.4 },
-                    { type: 'bee', probability: 0.3 }
+                    { type: 'bee', probability: 0.4 }
                 ]
             },
             // Wave 6
@@ -132,17 +133,17 @@ class EnemyManager {
             // Wave 8
             {
                 duration: 60,
-                enemyBudget: 700,
+                enemyBudget: 800,
                 spawnCooldownRange: [1, 2],
                 allowedEnemies: [
                     { type: 'smallWorm', probability: 0.5 },
-                    { type: 'bigWorm', probability: 0.5 }
+                    { type: 'eyeBall', probability: 0.5 },
                 ]
             },
             // Wave 9
             {
                 duration: 60,
-                enemyBudget: 750,
+                enemyBudget: 1000,
                 spawnCooldownRange: [0.9, 1.9],
                 allowedEnemies: [
                     { type: 'eyeBall', probability: 0.7 },
@@ -152,17 +153,17 @@ class EnemyManager {
             // Wave 11
             {
                 duration: 60,
-                enemyBudget: 800,
+                enemyBudget: 1200,
                 spawnCooldownRange: [0.8, 1.8],
                 allowedEnemies: [
                     { type: 'ghost', probability: 0.6 },
-                    { type: 'bee', probability: 0.4 }
+                    { type: 'eyeBall', probability: 0.4 },
                 ]
             },
             // Wave 13
             {
                 duration: 60,
-                enemyBudget: 900,
+                enemyBudget: 1400,
                 spawnCooldownRange: [0.7, 1.7],
                 allowedEnemies: [
                     { type: 'flower', probability: 0.5 },
@@ -172,7 +173,7 @@ class EnemyManager {
             // Wave 14
             {
                 duration: 60,
-                enemyBudget: 950,
+                enemyBudget: 1600,
                 spawnCooldownRange: [0.7, 1.6],
                 allowedEnemies: [
                     { type: 'pumpking', probability: 0.6 },
@@ -182,7 +183,7 @@ class EnemyManager {
             // Wave 16
             {
                 duration: 90,
-                enemyBudget: 1000,
+                enemyBudget: 1800,
                 spawnCooldownRange: [0.6, 1.5],
                 allowedEnemies: [
                     { type: 'slime', probability: 0.7 },
@@ -191,7 +192,7 @@ class EnemyManager {
             },
             {
                 duration: 90,
-                enemyBudget: 1050,
+                enemyBudget: 2000,
                 spawnCooldownRange: [0.6, 1.5],
                 allowedEnemies: [
                     { type: 'miniSlime', probability: 1 } // 100% miniSlime
@@ -199,7 +200,7 @@ class EnemyManager {
             },
             {
                 duration: 95,
-                enemyBudget: 1100,
+                enemyBudget: 2200,
                 spawnCooldownRange: [0.5, 1.4],
                 allowedEnemies: [
                     { type: 'snake', probability: 0.7 },
@@ -208,11 +209,12 @@ class EnemyManager {
             },
             {
                 duration: 100,
-                enemyBudget: 1200,
+                enemyBudget: 2400,
                 spawnCooldownRange: [0.5, 1.3],
                 allowedEnemies: [
-                    { type: 'snake', probability: 0.5 },
-                    { type: 'slime', probability: 0.5 }
+                    { type: 'eyeBall', probability: 0.2 },
+                    { type: 'snake', probability: 0.4 },
+                    { type: 'slime', probability: 0.4 }
                 ]
             }
             // ... add more wave configurations as needed

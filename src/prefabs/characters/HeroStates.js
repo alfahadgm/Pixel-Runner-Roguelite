@@ -9,7 +9,7 @@ class IdleState extends State {
 
     execute(scene, hero) {
         // use destructuring to make a local copy of the keyboard object
-        const { left, right, up, down, space, shift } = scene.keys;
+        const { left, right, up, down, space, shift, W, A, S, D } = scene.keys; // Added W, A, S, D keys
         const HKey = scene.keys.HKey;
 
         // transition to swing if pressing space
@@ -31,7 +31,7 @@ class IdleState extends State {
         }
 
         // transition to move if pressing a movement key
-        if(left.isDown || right.isDown || up.isDown || down.isDown ) {
+        if(left.isDown || right.isDown || up.isDown || down.isDown || W.isDown || A.isDown || S.isDown || D.isDown) { // Added W, A, S, D keys
             this.stateMachine.transition('move');
             return;
         }
@@ -43,7 +43,7 @@ class IdleState extends State {
 class MoveState extends State {
     execute(scene, hero) {
         // use destructuring to make a local copy of the keyboard object
-        const { left, right, up, down, space, shift } = scene.keys;
+        const { left, right, up, down, space, shift, W, A, S, D } = scene.keys; // Added W, A, S, D keys
         const HKey = scene.keys.HKey;
 
         // transition to swing if pressing space
@@ -65,7 +65,7 @@ class MoveState extends State {
         }
 
         // transition to idle if not pressing movement keys
-        if(!(left.isDown || right.isDown || up.isDown || down.isDown)) {
+        if(!(left.isDown || right.isDown || up.isDown || down.isDown || W.isDown || A.isDown || S.isDown || D.isDown)) { // Added W, A, S, D keys
             this.stateMachine.transition('idle');
             return;
         }
@@ -74,26 +74,25 @@ class MoveState extends State {
 
         // handle movement
         let moveDirection = new Phaser.Math.Vector2(0, 0);
-        if(up.isDown) {
+        if(up.isDown || W.isDown) { // Modified to include W key
             moveDirection.y = -1;
             scene.followPoint.y -= 1;
             hero.direction = 'up';
-            
-        } else if(down.isDown) {
+        } 
+        else if(down.isDown || S.isDown) { // Modified to include S key
             moveDirection.y = 1;
             scene.followPoint.y += 1;
             hero.direction = 'down';
         }
-        if(left.isDown) {
+        if(left.isDown || A.isDown) { // Modified to include A key
             moveDirection.x = -1;
             scene.followPoint.x -= 1;
             hero.direction = 'left';
-
-        } else if(right.isDown) {
+        } 
+        else if(right.isDown || D.isDown) { // Modified to include D key
             moveDirection.x = 1;
             scene.followPoint.x += 1;
             hero.direction = 'right';
-
         }
         // normalize movement vector, update hero position, and play proper animation
         moveDirection.normalize();
@@ -113,6 +112,7 @@ class SwingState extends State {
 
 class DashState extends State {
     enter(scene, hero) {
+
         hero.anims.play(`swing-${hero.direction}`);
         hero.setTint(0x00AA00);     // turn green
         let dashVelocityMultiplier = 2;

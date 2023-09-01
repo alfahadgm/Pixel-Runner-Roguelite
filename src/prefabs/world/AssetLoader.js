@@ -12,6 +12,12 @@ class AssetLoader {
         this.scene.load.setPath(path);
     }
 
+    musicControl(musicVolume, musicFadeVolume){
+        
+        this.musicVolume = musicVolume;
+        this.musicFadeVolume = musicFadeVolume;
+    }
+
     loadSprites() {
         // Load hero / enemy sprites
         this.loadSpriteSheet('hero', 'hero-sheet.png', { frameWidth: 32, frameHeight: 32 });
@@ -40,6 +46,7 @@ class AssetLoader {
         this.loadImage('beeP', 'enemy/projectiles/beeProjectile.png');
         this.loadImage('eyeballP', 'enemy/projectiles/eyeballProjectile.png');
         this.loadImage('firearmBullet', 'bullet.png');
+        this.loadImage('worm_projectile', 'enemy/projectiles/worm_projectile.png');
         this.loadSpriteSheet('energyBullet', 'plasmaRifle.png', { frameWidth: 16, frameHeight: 16 });
 
         // Load collectables sprites
@@ -66,6 +73,15 @@ class AssetLoader {
         //Sounds
         this.scene.load.audio('music', [ 'sound/music.ogg', 'sound/music.mp3' ]);
         this.scene.load.audio('musicFade', [ 'sound/music-fade.ogg', 'sound/music-fade.mp3' ]);
+        this.scene.load.audio('xp', [ 'sound/xp.ogg', 'sound/xp.mp3' ]);
+        this.scene.load.audio('health', [ 'sound/health.ogg', 'sound/health.mp3' ]);
+        this.scene.load.audio('hit', [ 'sound/hit.ogg', 'sound/hit.mp3' ]);
+        this.scene.load.audio('crit', [ 'sound/crit.ogg', 'sound/crit.mp3' ]);
+        this.scene.load.audio('dash', [ 'sound/dash.ogg', 'sound/dash.mp3' ]);
+        this.scene.load.audio('upgrade', [ 'sound/upgrade.ogg', 'sound/upgrade.mp3' ]);
+        this.scene.load.audio('shoot', [ 'sound/shoot.ogg', 'sound/shoot.mp3' ]);
+        this.scene.load.audio('levelup', [ 'sound/levelup.ogg', 'sound/levelup.mp3' ]);
+
     }
 
     loadSpriteSheet(key, path, frameConfig) {
@@ -119,18 +135,32 @@ class AssetLoader {
 
     audio(){
        this.music = this.scene.sound.add('music');
-       // music.on('volume', listener);
        this.music.play({
             loop: true
         });
-       // music.setVolume(this.musicVolume);
 
        this.musicFade = this.scene.sound.add('musicFade');
        // musicFade.on('volume', listener);
        this.musicFade.play({
             loop: true
         });
-       // musicFade.setVolume(this.musicFadeVolume);
+
+        this.xp = this.scene.sound.add('xp');
+        this.xp.setVolume(0.1);
+        this.health = this.scene.sound.add('health');
+        this.health.setVolume(0.1);
+        this.hit = this.scene.sound.add('hit');
+        this.hit.setVolume(0.1);
+        this.crit = this.scene.sound.add('crit');
+        this.crit.setVolume(0.1);
+        this.shoot = this.scene.sound.add('shoot');
+        this.shoot.setVolume(0.1);
+        this.upgrade = this.scene.sound.add('upgrade');
+        this.upgrade.setVolume(0.1);
+        this.levelup = this.scene.sound.add('levelup');
+        this.levelup.setVolume(0.3);
+        this.dash = this.scene.sound.add('dash');
+        this.dash.setVolume(0.3);
     }
 
     updateAudio(){

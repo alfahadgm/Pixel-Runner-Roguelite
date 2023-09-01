@@ -33,7 +33,7 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     follow(target) {
         const distanceToTarget = this.scene.utils.calculateDistance(this.x, this.y, target.x, target.y);
         const textureKey = this.texture.key;
-        let speedModifier = Math.max(target.heroStats.movementSpeed, (distanceToTarget > 800) ? distanceToTarget / 400 : 0);
+        let speedModifier = (distanceToTarget > 800) ? 800 / distanceToTarget : 1;
         
         if ((textureKey === 'bee' || textureKey === 'eyeball') && distanceToTarget <= 100) {
             this.body.setVelocity(0, 0);
@@ -62,9 +62,9 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         }
     }
 
-    throwProjectile(target) {
+    throwProjectile(target, projectileKey = null) {
         if (!this.canThrowProjectile || this.projectileCooldown) return;
-    
+        
         this.projectileCooldown = true;
         
         this.scene.time.delayedCall(1000, () => {
@@ -75,19 +75,26 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
     
             const createProjectile = (spriteKey, speed) => {
                 projectile = this.scene.physics.add.sprite(this.x, this.y, spriteKey);
+                console.log("Projectile created at ", this.x, this.y);
+
                 PROJECTILE_SPEED = speed;
             };
     
             const angle = Phaser.Math.Angle.Between(this.x, this.y, target.x, target.y);
             
-            switch (this.texture.key) {
-                case 'bee':
-                    createProjectile('beeP', 120);
-                    break;
-                case 'eyeball':
-                    createProjectile('eyeballP', 160);
-                    this.adjustProjectileCurve(projectile, target, PROJECTILE_SPEED);
-                    break;
+            // If a specific projectileKey is provided, use that
+            if (projectileKey) {
+                createProjectile(projectileKey, 120);  // Set the speed as required for 'worm_projectile'
+            } else {
+                switch (this.texture.key) {
+                    case 'bee':
+                        createProjectile('beeP', 120);
+                        break;
+                    case 'eyeball':
+                        createProjectile('eyeballP', 160);
+                        this.adjustProjectileCurve(projectile, target, PROJECTILE_SPEED);
+                        break;
+                }
             }
     
             projectile.setVelocityX(Math.cos(angle) * PROJECTILE_SPEED);
@@ -103,28 +110,30 @@ class Enemy extends Phaser.Physics.Arcade.Sprite {
         });
     }
     
+    
     adjustProjectileCurve(projectile, target, PROJECTILE_SPEED) {
         const lerpFactor = 0.05;
-        const initialAngle = Phaser.Math.Angle.Between(this.x, this.y, target.x, target.y);
-        
+    
         this.scene.time.addEvent({
             delay: 50,
             callback: () => {
                 if (!projectile.active) return;
-                const currentAngle = Math.atan2(projectile.body.velocity.y, projectile.body.velocity.x);
-                const targetAngle = Phaser.Math.Angle.Between(projectile.x, projectile.y, target.x, target.y);
-                let newAngle = Phaser.Math.Linear(currentAngle, targetAngle, lerpFactor);
     
-                if ((initialAngle >= 0 && newAngle < 0) || (initialAngle < 0 && newAngle > 0)) {
-                    newAngle = 0;
-                }
+                const targetAngle = Phaser.Math.Angle.Between(projectile.x, projectile.y, target.x, target.y);
+                
+                const angleDifference = Phaser.Math.Angle.Wrap(targetAngle - projectile.rotation);
+    
+                // Making sure the angle difference is kept small to avoid abrupt changes
+                let newAngle = projectile.rotation + angleDifference * lerpFactor;
+                newAngle = Phaser.Math.Angle.Wrap(newAngle);
     
                 projectile.setVelocityX(Math.cos(newAngle) * PROJECTILE_SPEED);
                 projectile.setVelocityY(Math.sin(newAngle) * PROJECTILE_SPEED);
+                projectile.rotation = newAngle;
             },
             loop: true
         });
-    }    
+    }
 
     decreaseHealth(amount) {
         this.health -= amount;
@@ -181,12 +190,12 @@ class Bee extends Enemy {
     constructor(scene, x, y) {
         const TEXTURE = 'bee';
         const NAME =  'bee';
-        const HEALTH = 60;
+        const HEALTH = 120;
         const DAMAGE = 15;
         const SPEED = 90;
         const RARITY = 2;
-        const BODYSIZE_WIDTH = 0;
-        const BODYSIZE_HEIGHT = 0;
+        const BODYSIZE_WIDTH = 10;
+        const BODYSIZE_HEIGHT = 10;
         const CANPROJECTILE = true;
         super(scene, x, y, TEXTURE, NAME, HEALTH, DAMAGE, SPEED, BODYSIZE_WIDTH, BODYSIZE_HEIGHT, CANPROJECTILE, RARITY);
     }
@@ -197,7 +206,7 @@ class SmallWorm extends Enemy {
     constructor(scene, x, y) {
         const TEXTURE = 'small_worm';
         const NAME = 'smallWorm';
-        const HEALTH = 80;
+        const HEALTH = 400;
         const DAMAGE = 20;
         const SPEED = 50;
         const RARITY = 2;
@@ -207,17 +216,21 @@ class SmallWorm extends Enemy {
         super(scene, x, y, TEXTURE, NAME, HEALTH, DAMAGE, SPEED, BODYSIZE_WIDTH, BODYSIZE_HEIGHT, CANPROJECTILE, RARITY);
     }
 
-    follow(target) {
-        const distanceToTarget = this.scene.utils.calculateDistance(this.x, this.y, target.x, target.y);
-        let speedModifier = 1;
-
-        // Special Behavior: If within 100 units, move 1.5x faster
-        if (distanceToTarget < 100) {
-            speedModifier = 1.5;
+    decreaseHealth(amount) {
+        this.health -= amount;
+    
+        // Move worm towards target when it gets hit
+        if (this.scene.hero) {
+            let nudgeAmount = 10; // You can change this to control the distance of the nudge
+            const angle = Phaser.Math.Angle.Between(this.x, this.y, this.scene.hero.x, this.scene.hero.y);
+            this.x += Math.cos(angle) * nudgeAmount;
+            this.y += Math.sin(angle) * nudgeAmount;
         }
-
-        super.follow(target);
-        this.speed *= speedModifier; // Adjust the speed
+    
+        if (this.health <= 0) {
+            this.health = 0;
+            this.handleDestroy();
+        }
     }
 }
 
@@ -227,27 +240,28 @@ class BigWorm extends Enemy {
     constructor(scene, x, y) {
         const TEXTURE = 'big_worm';
         const NAME = 'bigWorm';
-        const HEALTH = 300;
+        const HEALTH = 1500;
         const DAMAGE = 30;
         const SPEED = 40;
         const RARITY = 3;
         const BODYSIZE_WIDTH = 10;
         const BODYSIZE_HEIGHT = 10;
-        const CANPROJECTILE = false;
+        const CANPROJECTILE = true;  // Setting this to true
         super(scene, x, y, TEXTURE, NAME, HEALTH, DAMAGE, SPEED, BODYSIZE_WIDTH, BODYSIZE_HEIGHT, CANPROJECTILE, RARITY);
     }
 
-    follow(target) {
-        // Special Behavior: 10% chance to teleport closer
-        if (Math.random() < 0.10) {
-            const dx = (target.x - this.x) * 0.5;
-            const dy = (target.y - this.y) * 0.5;
-            this.x += dx;
-            this.y += dy;
-        }
-        super.follow(target);
+    decreaseHealth(amount, target) {
+        super.decreaseHealth(amount);
+        this.throwRandomProjectile();
     }
+    
+    throwRandomProjectile() {
+        const projectileKey = 'worm_projectile';
+        this.throwProjectile(this.scene.hero, projectileKey);
+    }   
+    
 }
+
 // Wave 10
 class EyeBall extends Enemy {
     constructor(scene, x, y) {
@@ -307,17 +321,28 @@ class Ghost extends Enemy {
 }
 
 class Flower extends Enemy {
+    // Class-level constants for Flower
+    static TEXTURE = 'flower';
+    static NAME = 'flower';
+    static HEALTH = 350;
+    static DAMAGE = 30;
+    static SPEED = 40;
+    static RARITY = 3;
+    static BODYSIZE_WIDTH = 10;
+    static BODYSIZE_HEIGHT = 10;
+    static CANPROJECTILE = false;
+
+    // Class-level constants for spore
+    static SPORE_SPEED = 20;
+    static NUM_SPORES = 8;
+    static ANGLE_INCREMENT = (2 * Math.PI) / Flower.NUM_SPORES; 
+
     constructor(scene, x, y) {
-        const TEXTURE = 'flower'; 
-        const NAME = 'flower'; 
-        const HEALTH = 350;
-        const DAMAGE = 30;
-        const SPEED = 40;
-        const RARITY = 3;
-        const BODYSIZE_WIDTH = 10;
-        const BODYSIZE_HEIGHT = 10;
-        const CANPROJECTILE = false;
-        super(scene, x, y, TEXTURE, NAME, HEALTH, DAMAGE, SPEED, BODYSIZE_WIDTH, BODYSIZE_HEIGHT, CANPROJECTILE, RARITY);
+        super(
+            scene, x, y, Flower.TEXTURE, Flower.NAME, Flower.HEALTH, 
+            Flower.DAMAGE, Flower.SPEED, Flower.BODYSIZE_WIDTH, 
+            Flower.BODYSIZE_HEIGHT, Flower.CANPROJECTILE, Flower.RARITY
+        );
 
         this.sporeReleaseInterval = 5000; // 5 seconds
         this.scene.time.addEvent({
@@ -329,20 +354,21 @@ class Flower extends Enemy {
     }
 
     releaseSpores() {
-        const SPORE_SPEED = 20;
-        const NUM_SPORES = 8;
-        const ANGLE_INCREMENT = (2 * Math.PI) / NUM_SPORES;  // 360 degrees / number of spores
+        if (!this.scene || !this.scene.physics) {
+            return;
+        }
+        for (let i = 0; i < Flower.NUM_SPORES; i++) {
+            const spore = this.scene.physics.add.sprite(this.x, this.y, 'spore');
+            const angle = i * Flower.ANGLE_INCREMENT;
 
-        for (let i = 0; i < NUM_SPORES; i++) {
-            let spore = this.scene.physics.add.sprite(this.x, this.y, 'spore');  // Assuming a 'sporeTexture' exists in the game
-            const angle = i * ANGLE_INCREMENT;
+            spore.setVelocityX(Math.cos(angle) * Flower.SPORE_SPEED);
+            spore.setVelocityY(Math.sin(angle) * Flower.SPORE_SPEED);
 
-            spore.setVelocityX(Math.cos(angle) * SPORE_SPEED);
-            spore.setVelocityY(Math.sin(angle) * SPORE_SPEED);
-
-            // Collider logic for spore and target. It would be best to move this out to avoid adding multiple colliders for every spore.
-            this.scene.physics.add.overlap(spore, this.scene.player, (spore, player) => {  // Assuming the player object exists in the scene
-                hero.applyPoisonEffect();  // A method in player to apply poison effect
+            // Moved the collider logic out of loop
+            // It will still be applied multiple times, 
+            // consider refactoring if it affects performance.
+            this.scene.physics.add.overlap(spore, this.scene.player, (spore, player) => {
+                player.applyPoisonEffect(); // Corrected hero to player
                 spore.destroy();
             });
         }
@@ -354,7 +380,7 @@ class Pumpking extends Enemy {
     constructor(scene, x, y) {
         const TEXTURE = 'pumpking'; 
         const NAME = 'pumpking'; 
-        const HEALTH = 350;
+        const HEALTH = 2000;
         const DAMAGE = 35;
         const SPEED = 50;
         const RARITY = 3;

@@ -152,7 +152,6 @@ class GameScene extends Phaser.Scene {
         // Check if the hero can dash
         if (this.hero.heroStats.canDash) {
             this.heroIsInvincible = true;
-    
             // After 1.5 seconds, the hero is no longer invincible.
             this.time.addEvent({
                 delay: 1500,
@@ -164,7 +163,9 @@ class GameScene extends Phaser.Scene {
     
             // Set the canDash flag to false so the hero can't dash immediately again
             this.hero.heroStats.canDash = false;
-    
+            this.assetLoader.dash.play({
+                loop: false
+            });
             // After 5 seconds, reset the canDash flag so the hero can dash again
             this.time.addEvent({
                 delay: this.hero.heroStats.dashCooldown,
@@ -210,10 +211,16 @@ class GameScene extends Phaser.Scene {
         this.keys.HKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.H);
         this.keys.KKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.K);
         this.keys.EnterKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
-        this.keys.WKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+        this.keys.W = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+        this.keys.A = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
+        this.keys.S = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
+        this.keys.D = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+
+        
+        /*this.keys.WKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
         this.keys.WKey.on('down', () => {
             this.hero.switchWeapon();
-        });
+        });*/
     }
     
     update(time, delta) {

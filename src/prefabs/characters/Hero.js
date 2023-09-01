@@ -21,6 +21,7 @@ class Hero extends Phaser.Physics.Arcade.Sprite {
         // Weapon properties
         this.initializeWeapons();
         this.healthBar = new HealthBar(scene, x, y - 20);  // Assuming a height of 20 for the health bar
+        this.shieldBar = new ShieldBar(scene, x, y - 20);  // Assuming a height of 20 for the health bar
     }
 
     initializeWeapons() {
@@ -92,7 +93,7 @@ class Hero extends Phaser.Physics.Arcade.Sprite {
     
     fireBasedOnDirection() {
         let {x, y} = this.getDirectionOffsets();
-        this.currentWeapon.fire(this.x + x, this.y + y,this.scene.time.now);
+        this.currentWeapon.fire(this.x + x, this.y + y);
     }
     getDirectionOffsets() {
         let offsets = {x: 0, y: 0};
@@ -120,7 +121,9 @@ class Hero extends Phaser.Physics.Arcade.Sprite {
 
     update() {
         this.healthBar.healthBarsetPosition(this.x -9 , this.y - 16 );
+        this.shieldBar.shieldBarsetPosition(this.x -9 , this.y - 19 );
         this.healthBar.update();
+        this.shieldBar.update();
     }
 }
 
@@ -181,6 +184,58 @@ class HealthBar {
 
         var d = Math.floor(this.p * this.value);
 
+        this.bar.fillRect(this.x + 0.5, this.y + 0.5, d, 3); // adjusted accordingly
+    }
+
+}
+
+class ShieldBar {
+
+    constructor (scene, x, y)
+    {
+        this.bar = new Phaser.GameObjects.Graphics(scene);
+        this.bar.setDepth(4);
+        this.x = x;
+        this.y = y;
+        this.value = 100;
+        this.p = 19 / 100;
+
+        this.draw();
+        this.scene = scene;
+        scene.add.existing(this.bar);
+    }
+
+    shieldBarsetPosition(x, y) {
+        this.x = x;
+        this.y = y;
+        this.draw();
+    }
+
+    update()
+    {
+        this.value = (this.scene.hero.heroStats.shield/this.scene.hero.heroStats.maxshield) * 100;
+
+        if (this.value < 0)
+        {
+            this.value = 0;
+        }
+        this.draw();
+        return (this.value === 0);
+    }
+
+    draw ()
+    {
+        this.bar.clear();
+
+        // BG
+    //    this.bar.fillStyle(0x000000);
+    //      this.bar.fillRect(this.x, this.y, 20, 4); // quarter of the original values
+
+        // Health
+        this.bar.fillStyle(0xffffff);
+        this.bar.fillRect(this.x + 0.5, this.y + 0.5, 19, 3); // adjusted accordingly
+        this.bar.fillStyle(0x808080);
+        var d = Math.floor(this.p * this.value);
         this.bar.fillRect(this.x + 0.5, this.y + 0.5, d, 3); // adjusted accordingly
     }
 

@@ -54,6 +54,9 @@ class Bullet extends Phaser.Physics.Arcade.Sprite {
     fire(x, y, direction) {
 
         this.setActive(true).setVisible(true).setPosition(x, y);
+        this.scene.assetLoader.shoot.play({
+            loop: false
+        });
 
         const speed = this.weaponStats.bulletSpeed;
         this.setVelocity(direction.velocityX * speed, direction.velocityY * speed);

@@ -9,13 +9,12 @@ class Weapon {
 
     }
 
-    fire(x, y, currentTime) {
-        if (this.isReadyToFire(currentTime)) {
+    fire(x, y) {  // removed currentTime parameter
+        if (this.isReadyToFire()) {
             const nearestEnemy = this.scene.findNearestEnemy(this.scene.hero);
             if (nearestEnemy) {
             
                 const distanceToEnemy = Math.sqrt((nearestEnemy.x - x) ** 2 + (nearestEnemy.y - y) ** 2);
-                console.log("Budget : " + this.scene.enemyManager.enemyBudget);
 
                 if (distanceToEnemy <= this.weaponStats.maxRange) {
                     const direction = this.getDirectionToTarget(x, y, nearestEnemy.x, nearestEnemy.y);
@@ -32,11 +31,16 @@ class Weapon {
         bullet.fire(x, y, direction);
     }
 
-    isReadyToFire(currentTime) {
+    isReadyToFire() {
+        const hasAmmo = !this.isOutOfAmmo();
+        const notReloading = !this.isReloading;
         
-        
-        
-        return currentTime > this.lastFired + this.weaponStats.cooldown;
+        if (!hasAmmo) {
+            this.outOfAmmoHandler();
+            return false; // Cannot fire without ammo
+        }
+    
+        return notReloading;
     }
 
     createBullet(x, y) {

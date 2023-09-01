@@ -3,15 +3,15 @@ class Upgrades {
         this.scene = scene;
         this.hero = hero;
         this.weaponUpgradeAttributes = [
-            { name: 'Damage', property: 'damage', cost: 100, costModifier: 1.5, modificationType: 'value', modificationValue: 5, displayType: 'normal' },
+            { name: 'Damage', property: 'damage', cost: 100, costModifier: 1.5, modificationType: 'percentage', modificationValue: 10, displayType: 'normal' },
           //  { name: 'Bullet Speed', property: 'bulletSpeed', cost: 80, costModifier: 1.5, modificationType: 'value', modificationValue: 25, displayFormat: 'km/s' },
             { name: 'Crit Chance', property: 'criticalChance', cost: 120, costModifier: 1.5, modificationType: 'value', modificationValue: 0.02, displayFormat: 'percentage' },
             { name: 'Crit Damage', property: 'criticalDamage', cost: 140, costModifier: 1.5, modificationType: 'value', modificationValue: 0.1, displayFormat: 'percentage' },
-            { name: 'Range', property: 'maxRange', cost: 80, costModifier: 1.5, modificationType: 'value', modificationValue: 15, displayType: 'normal' },
-            { name: 'FireRate', property: 'cooldown', cost: 70, costModifier: 1.5, modificationType: 'value', modificationValue: -5, displayFormat: 'seconds' },
-            { name: 'Magazine', property: 'magazineSize', cost: 95, costModifier: 1.3, modificationType: 'value', modificationValue: 3, displayType: 'normal' },
+            { name: 'Range', property: 'maxRange', cost: 80, costModifier: 1.5, modificationType: 'value', modificationValue: 5, displayType: 'normal' },
+            { name: 'FireRate', property: 'cooldown', cost: 70, costModifier: 1.5, modificationType: 'value', modificationValue: -5, displayFormat: 'fireRate' },
+            { name: 'Magazine', property: 'magazineSize', cost: 95, costModifier: 1.5, modificationType: 'value', modificationValue: 3, displayType: 'normal' },
             { name: 'Reload', property: 'reloadTime', cost: 85, costModifier: 1.2, modificationType: 'percentage', modificationValue: -10, displayFormat: 'seconds' },
-            { name: 'Penetration', property: 'penetration', cost: 110, costModifier: 1.4, modificationType: 'percentage', modificationValue: 15, displayType: 'percentage' }
+           // { name: 'Penetration', property: 'penetration', cost: 110, costModifier: 1.4, modificationType: 'percentage', modificationValue: 15, displayType: 'percentage' }
         ];
         this.heroUpgrades = [
             '10 Max Health',
@@ -93,12 +93,8 @@ class Upgrades {
     }
 
     displayRandomHeroUpgrades() {
-        //this.scene.music.setMusicVolume(0);
-       // this.scene.musicFade.setMusicFadeVolume(1);
        this.drawGraphics();
-
-
-       
+       this.scene.assetLoader.musicControl(0, 1);
        this.heroUpgradeButtons.forEach(button => {
         button.setVisible(true);
          });
@@ -119,12 +115,17 @@ class Upgrades {
                 .setScrollFactor(0)
                 .setDepth(7);
     
-            let buttonGroup = this.scene.add.container(0, 0, [btnBackground, btnText])
+                let buttonGroup = this.scene.add.container(0, 0, [btnBackground, btnText])
                 .setSize(cellWidth, cellHeight)
                 .setInteractive(new Phaser.Geom.Rectangle(0, 0, cellWidth, cellHeight), Phaser.Geom.Rectangle.Contains)
-                .on('pointerdown', () => this.applySelectedHeroUpgrade(upgrade))
-                .on('pointerover', () => btnBackground.setFrame('button-over'))
-                .on('pointerout', () => btnBackground.setFrame('button-bg'))
+                .on('pointerdown', () => {
+                    this.applySelectedHeroUpgrade(upgrade);  // Apply the upgrade
+                    this.scene.assetLoader.upgrade.play({  // Play the asset
+                        loop: false
+                    });
+                })            
+                .on('pointerover', () => btnBackground.setTint(0xaaaaaa)) // Grey tint
+                .on('pointerout', () => btnBackground.setTint(0xffffff)) // Grey tint
                 .setScrollFactor(0)
                 .setDepth(6);
     
@@ -152,12 +153,14 @@ class Upgrades {
         switch (attr.displayFormat) {
             case 'percentage':
                 return (value * 100).toFixed(2) + '%'; // Convert to percentage
-            case 'seconds':
-                return value/1000 + ' Sec';
+            case 'reload':
+                return (value/1000).toFixed(2)+ ' Sec';
+            case 'fireRate':
+                return (1/(value/1000)).toFixed(2)+ ' BPS';
             case 'km/s':
                 return (value*0.002).toFixed(2) + ' KM/s';
             default:
-                return value; // Return value as-is for default
+                return value.toFixed(2); // Return value as-is for default
         }
     }
 
@@ -205,7 +208,7 @@ class Upgrades {
             
             // Create a text element for the attribute's description
             let displayValue = this.getFormattedAttributeValue(attr, this.hero.currentWeapon.weaponStats[attr.property]);
-            let btnText = this.scene.add.text(0, 0, attr.name + ": " + displayValue + " (" + attr.cost + " Gold)", {
+            let btnText = this.scene.add.text(0, 0, attr.name + ": " + displayValue + " (" + Math.round(attr.cost) + " Gold)", {
                 color: '#000',
                 align: 'center',
                 fontStyle: 'bold'
@@ -225,6 +228,9 @@ class Upgrades {
         .on('pointerdown', () => {
             if (canAfford) {
                 this.buySelectedUpgrade(attr);
+                this.scene.assetLoader.upgrade.play({
+                    loop: false
+                })
             }
         })
         .on('pointerover', () => {
@@ -331,11 +337,16 @@ class Upgrades {
             .setTint(0xff0000)
             .setInteractive()
             .on('pointerdown', () => {
-                this.resumeButton.setVisible(false);
-                this.resumeButtonText.setVisible(false); // Add this
                 this.hideUpgradeUI();
+                this.resumeButton.setVisible(false);
+                this.resumeButtonText.setVisible(false);
                 this.backgroundGraphics.destroy();
                 this.shapesGraphics.destroy();
+                this.scene.assetLoader.musicControl(1, 0);
+
+                this.showCountdown(() => {
+                    this.resumeGame();
+                });
             });
     
             // Create and position the "RESUME" text on top of the button
@@ -346,8 +357,43 @@ class Upgrades {
             .setDepth(8);
         } else {
             this.resumeButton.setVisible(true);
-            this.resumeButtonText.setVisible(true); // Add this
+            this.resumeButtonText.setVisible(true);
         }
+    }
+
+    resumeGame() {
+
+        this.scene.resumeGame();
+        this.hero.updateAutoFireDelay();
+        this.scene.assetLoader.musicVolume = 1;
+        this.scene.assetLoader.musicFadeVolume = 0;
+
+    }
+    
+    showCountdown(callback) {
+        let count = 3; // start with 3
+    
+        const counterText = this.scene.add.text(this.grid.cw / 2, this.grid.ch / 2, '3', {
+            color: '#ffffff',
+            fontSize: '40px',
+            fontFamily: 'PixelAE'
+        })
+        .setOrigin(0.5, 0.5)
+        .setScrollFactor(0)
+        .setDepth(10);
+    
+        const timer = this.scene.time.addEvent({
+            delay: 500, // 1 second delay
+            repeat: 2, // repeat 2 times for a total of 3 times (3, 2, 1)
+            callback: () => {
+                count--;
+                counterText.setText(count.toString());
+                if (count === 0) {
+                    counterText.destroy();
+                    callback();
+                }
+            }
+        });
     }
     
     
@@ -364,8 +410,6 @@ class Upgrades {
         this.heroUpgradeButtons.forEach(button => {
             button.setVisible(false);
         });
-        this.scene.resumeGame();
-        this.hero.updateAutoFireDelay();
                        // this.scene.music.setMusicVolume(1);
                // this.scene.musicFade.setMusicFadeVolume(0);
         // If there are any other UI elements (like texts or headers), hide them here.

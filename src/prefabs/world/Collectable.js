@@ -60,24 +60,36 @@ class Collectable extends Phaser.Physics.Arcade.Sprite {
                 const goldValue = 500*player.heroStats.coinsModifier;
                 player.heroStats.modifyAttributeByValue('coins', goldValue);
                 displayText = `+${Math.round(goldValue)} COINS`;
+                this.scene.assetLoader.xp.play({
+                    loop: false
+                });
                 break;
     
             case 'silverCoin':
                 const silverValue = 200*player.heroStats.coinsModifier;
                 player.heroStats.modifyAttributeByValue('coins', silverValue);
                 displayText = `+${Math.round(silverValue)} COINS`;
+                this.scene.assetLoader.xp.play({
+                    loop: false
+                });
                 break;
     
             case 'bronzeCoin':
                 const bronzeValue = 100*player.heroStats.coinsModifier;
                 player.heroStats.modifyAttributeByValue('coins', bronzeValue);
                 displayText = `+${Math.round(bronzeValue)} COINS`;
+                this.scene.assetLoader.xp.play({
+                    loop: false
+                });
                 break;
     
             case 'heart':
                 const healValue = 10;
                 player.heroStats.heal(healValue);
                 displayText = `+${Math.round(healValue)} HP`;
+                this.scene.assetLoader.health.play({
+                    loop: false
+                });
                 break;
     
             case 'heartmax':
@@ -85,24 +97,36 @@ class Collectable extends Phaser.Physics.Arcade.Sprite {
                 const percentageIncrease = 50;
                 player.heroStats.modifyAttributeByPercentage('health', percentageIncrease);
                 displayText = `+${percentageIncrease}% HP`;
+                this.scene.assetLoader.upgrade.play({
+                    loop: false
+                });
                 break;
     
             case 'xplow':
                 const lowXPValue = 20*player.heroStats.xpModifier;
                 player.heroStats.modifyAttributeByValue('xp', lowXPValue);
                 displayText = `+${Math.round(lowXPValue)} XP`;
+                this.scene.assetLoader.xp.play({
+                    loop: false
+                });
                 break;
     
             case 'xpmid':
                 const midXPValue = 100*player.heroStats.xpModifier;
                 player.heroStats.modifyAttributeByValue('xp', midXPValue);
                 displayText = `+${Math.round(midXPValue)} XP`;
+                this.scene.assetLoader.xp.play({
+                    loop: false
+                });
                 break;
     
             case 'xphigh':
                 const highXPValue = 500*player.heroStats.xpModifier;
                 player.heroStats.modifyAttributeByValue('xp', highXPValue);
                 displayText = `+${Math.round(highXPValue)} XP`;
+                this.scene.assetLoader.xp.play({
+                    loop: false
+                });
                 break;
     
             case 'ammo':

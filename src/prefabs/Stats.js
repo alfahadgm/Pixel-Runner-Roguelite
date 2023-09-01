@@ -40,11 +40,13 @@ class HeroStats {
     levelUp() {
         if (this.level < this.xpThresholds.length) {
             this.level++;
+            this.scene.assetLoader.musicControl(0, 1); 
             this.scene.pauseGame();
             this.scene.upgrades.displayRandomHeroUpgrades();
             // Add other level-up logic if needed, e.g., increasing health, etc.
-        } else {
-            // Logic for when the hero is at max level.
+            this.scene.assetLoader.levelup.play({
+                loop: false
+            });
         }
     }
 
@@ -146,6 +148,7 @@ heal(amount) {
 
 class WeaponStats {
     constructor(
+        scene,
         damage, bulletSpeed, criticalChance, criticalDamage, maxRange, cooldown,
         // Energy weapon attributes
         energyCapacity = null, currentEnergyCapacity= null, usagePerShot = null, rechargeRate = null, overheatThreshold = null,
@@ -155,6 +158,7 @@ class WeaponStats {
         magazineSize = null, currentMagazine=null , totalAmmo = null, reloadTime = null, bulletType = null, penetration = null
     ) {
         // Basic weapon attributes
+        this.scene = scene;
         this.damage = damage;
         this.bulletSpeed = bulletSpeed;
         this.criticalChance = criticalChance; 
@@ -201,11 +205,14 @@ class WeaponStats {
 
     getDamage(distanceFromImpact = 0) {
         let finalDamage = this.damage;
-        
+
         // Critical hit chance
         if (this.criticalChance != null) {
             const isCriticalHit = Math.random() < this.criticalChance;
             if (isCriticalHit && this.criticalDamage != null) {
+                this.scene.assetLoader.crit.play({
+                    loop: false
+                });
                 finalDamage *= this.criticalDamage;
             }
         }
@@ -238,7 +245,10 @@ class WeaponStats {
                     break;
             }
         }
-        
+
+        this.scene.assetLoader.hit.play({
+            loop: false
+        });
         return finalDamage;
     }
 }    
