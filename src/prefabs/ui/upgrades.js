@@ -2,278 +2,474 @@ class Upgrades {
     constructor(scene, hero) {
         this.scene = scene;
         this.hero = hero;
-        this.heroOptions = [
+        this.weaponUpgradeAttributes = [
+            { name: 'Damage', property: 'damage', cost: 100, costModifier: 1.5, modificationType: 'value', modificationValue: 5, displayType: 'normal' },
+          //  { name: 'Bullet Speed', property: 'bulletSpeed', cost: 80, costModifier: 1.5, modificationType: 'value', modificationValue: 25, displayFormat: 'km/s' },
+            { name: 'Crit Chance', property: 'criticalChance', cost: 120, costModifier: 1.5, modificationType: 'value', modificationValue: 0.02, displayFormat: 'percentage' },
+            { name: 'Crit Damage', property: 'criticalDamage', cost: 140, costModifier: 1.5, modificationType: 'value', modificationValue: 0.1, displayFormat: 'percentage' },
+            { name: 'Range', property: 'maxRange', cost: 80, costModifier: 1.5, modificationType: 'value', modificationValue: 15, displayType: 'normal' },
+            { name: 'FireRate', property: 'cooldown', cost: 70, costModifier: 1.5, modificationType: 'value', modificationValue: -5, displayFormat: 'seconds' },
+            { name: 'Magazine', property: 'magazineSize', cost: 95, costModifier: 1.3, modificationType: 'value', modificationValue: 3, displayType: 'normal' },
+            { name: 'Reload', property: 'reloadTime', cost: 85, costModifier: 1.2, modificationType: 'percentage', modificationValue: -10, displayFormat: 'seconds' },
+            { name: 'Penetration', property: 'penetration', cost: 110, costModifier: 1.4, modificationType: 'percentage', modificationValue: 15, displayType: 'percentage' }
+        ];
+        this.heroUpgrades = [
             '10 Max Health',
             '2 Armor',
             '5 Max Shield',
             '10% Movement Speed',
             '100% Magnet Size',
             '10% Coins Pickups',
-            '10% Ammo Pickups',
             '10% XP Pickups'
-        ];        
-        this.upgradePanel = null;
-        this.weaponShopPanel = null;
-        this.resumeButton = null;
-        this.tintedBackground = null;
-        this.isUpgradeMenuActive = false;
+        ];
+        this.heroUpgradeButtons = [];
+        this.weaponUpgradeButtons = [];
+
+    this.weaponUpgradeButtons.forEach(button => {
+        button.setVisible(false);
+    });
+    
+    this.heroUpgradeButtons.forEach(button => {
+        button.setVisible(false);
+    });
+
+    this.rect = Phaser.Geom.Rectangle.Clone(this.scene.cameras.main);
+    this.initializeUpgradeUI();
     }
 
-    createTintedBackground() {
-        const cam = this.scene.cameras.main;
+
+
+    applySelectedHeroUpgrade(option) {
+        const heroStats = this.hero.heroStats;
+        const upgradeMap = {
+            '10 Max Health': () => heroStats.modifyAttributeByValue('maxhealth', 20),
+            '2 Armor': () => heroStats.modifyAttributeByValue('armor', 2),
+            '5 Max Shield': () => heroStats.modifyAttributeByValue('maxshield', 5),
+            '10% Movement Speed': () => heroStats.modifyAttributeByPercentage('movementSpeed', 10),
+            '100% Magnet Size': () => heroStats.modifyAttributeByPercentage('magnetSize', 100),
+            '10% Coins Pickups': () => heroStats.modifyAttributeByPercentage('coinsModifier', 10),
+            '10% XP Pickups': () => heroStats.modifyAttributeByPercentage('xpModifier', 10)
+        };
     
-        if (!this.tintedBackground) {
-            this.tintedBackground = this.scene.add.graphics({ fillStyle: { color: 0x000000, alpha: 0.7 } }).setScrollFactor(0).setDepth(5);
+        if (upgradeMap[option]) {
+            upgradeMap[option]();
         }
+
+        this.heroUpgradeButtons.forEach(button => {
+            button.setVisible(false);
+        });
+    
+        this.weaponUpgradeButtons.forEach(button => {
+            button.setVisible(true);
+        });
+        this.displayWeaponShopTitle();
+        this.displayAvailableWeaponUpgrades();
         
-        this.updateTintedBackgroundSizeAndPosition(cam);
-        this.tintedBackground.visible = true;  // Ensure the tintedBackground is visible
-    }
-    
-    updateTintedBackgroundSizeAndPosition(cam) {
-        this.tintedBackground.clear();
-        this.tintedBackground.fillRect(0, 0, cam.width, cam.height);  // Drawing from (0, 0)
-    }
-    
-
-    hideTintedBackground() {
-        if (this.tintedBackground) {
-            this.tintedBackground.visible = false;
-        }
     }
 
-    showUpgrades() {
-        this.scene.assetLoader.musicVolume = 0;
-        this.scene.assetLoader.musicFadeVolume = 1;
-        this.isUpgradeMenuActive = true;
-        this.createTintedBackground();
-    
-        if (this.upgradePanel) {
-            this.upgradePanel.clear(true, true);
-        }
+    drawGraphics (){
+            // Graphics for the black tinted background
+    this.backgroundGraphics = this.scene.add.graphics();
+    this.backgroundGraphics.setDepth(4).setScrollFactor(0); // Set a depth for the background
 
-        this.createUpgradePanel();
+    // Fill the screen with a black tinted rectangle
+    this.backgroundGraphics.fillStyle(0x000000, 0.5); // 0.5 is the alpha for semi-transparency
+    this.backgroundGraphics.fillRect(0, 0, this.scene.cameras.main.width, this.scene.cameras.main.height);
+
+    // Graphics for the shapes
+    this.shapesGraphics = this.scene.add.graphics();
+    this.shapesGraphics.setDepth(6).setScrollFactor(0); // Set a different depth for the shapes
+    
+    // Assuming you'll be drawing the shapes here...
+    this.shapes = new Array(15).fill(null).map(
+        () => new Phaser.Geom.Circle(Phaser.Math.Between(0, 800), Phaser.Math.Between(0, 600), Phaser.Math.Between(25, 75))
+    );
+    
+    // Draw the shapes on the shapesGraphics
+    this.shapesGraphics.lineStyle(5, 0x00ff00, 1); // Example style, adjust as needed
+    this.shapes.forEach(shape => {
+        this.shapesGraphics.strokeCircleShape(shape); // Example drawing method for circles
+    });
     }
 
-    createUpgradePanel() {
-        const cam = this.scene.cameras.main;
+    displayRandomHeroUpgrades() {
+        //this.scene.music.setMusicVolume(0);
+       // this.scene.musicFade.setMusicFadeVolume(1);
+       this.drawGraphics();
+
+
+       
+       this.heroUpgradeButtons.forEach(button => {
+        button.setVisible(true);
+         });
+
+        let randomUpgrades = Phaser.Utils.Array.Shuffle(this.heroUpgrades).slice(0, 3);
+        
+        randomUpgrades.forEach((upgrade, index) => {
+            let cellWidth = this.grid.getCellWidth() * 4; // Span 3 columns
+            let cellHeight = this.grid.getCellHeight();
     
-        const centerX = cam.scrollX + cam.width / 2;
-        const centerY = cam.scrollY + cam.height / 2;
+            let btnBackground = this.scene.add.nineslice(0, 0, 'ui', 'button-bg')
+                .setOrigin(0.5, 0.5)
+                .setScrollFactor(0)
+                .setDisplaySize(cellWidth, cellHeight);
     
-        const randomOptions = Phaser.Utils.Array.Shuffle(this.heroOptions).slice(0, 3);
-        this.upgradePanel = this.scene.add.group();
+            let btnText = this.scene.add.text(0, 0, upgrade, { color: '#fff', align: 'center' })
+                .setOrigin(0.5, 0.5)
+                .setScrollFactor(0)
+                .setDepth(7);
     
-        // Define spacing constants
-        const btnSpacing = 50;
-        const textSpacing = 30;
+            let buttonGroup = this.scene.add.container(0, 0, [btnBackground, btnText])
+                .setSize(cellWidth, cellHeight)
+                .setInteractive(new Phaser.Geom.Rectangle(0, 0, cellWidth, cellHeight), Phaser.Geom.Rectangle.Contains)
+                .on('pointerdown', () => this.applySelectedHeroUpgrade(upgrade))
+                .on('pointerover', () => btnBackground.setFrame('button-over'))
+                .on('pointerout', () => btnBackground.setFrame('button-bg'))
+                .setScrollFactor(0)
+                .setDepth(6);
     
-        randomOptions.forEach((option, index) => {
-            const btnX = centerX;
-            const btnY = centerY - (randomOptions.length - 1) * btnSpacing + index * 100; // This positions the buttons in a row
-            
-            // Create button
-            const btn = this.scene.add.sprite(btnX, btnY, 'upgradeBtn').setInteractive().setDepth(6);
-            
-            // Place the text just below its corresponding button
-            const text = this.scene.add.text(btnX, btnY + textSpacing, option, { fontFamily: 'PixelAE' }).setOrigin(0.5).setDepth(6); 
+            // Adjusting the position according to given requirement
+            this.grid.placeAt(4.5, 2 + index * 2, buttonGroup); // Adjusted the placement to the center
     
-            btn.on('pointerdown', () => {
-                this.applyHeroUpgrade(option);
-                this.hideUpgrades();
-            });
-    
-            this.upgradePanel.add(btn);
-            this.upgradePanel.add(text);
+            // Store a reference to the created button:
+            this.heroUpgradeButtons.push(buttonGroup);
         });
     }
     
-    
-    createWeaponShopPanel() {
-        const cam = this.scene.cameras.main;
-    
-        // Define initial starting position.
-        const spacing = 20;
-        const centeredX = cam.scrollX + cam.width / 2;  // Center of the camera.
-    
-        this.weaponShopPanel = this.scene.add.group();
-        const weaponText = this.scene.add.text(centeredX, cam.scrollY + spacing, 'Weapon Shop', { fontSize: '32px',  fontFamily: 'PixelAE' }).setOrigin(0.5).setDepth(6);  // Doubled font size and set the origin to center the text.
-        this.weaponShopPanel.add(weaponText);
-    
-        // Define Resume button properties.
-        const resumeFontSize = '32px';
-        const resumePadding = 50;  // Padding from the bottom.
 
-        let startX = cam.scrollX + 10;  // Padding from the left.
-        let startY = cam.scrollY + weaponText.height + 2 * spacing;  // Below the Weapon Shop text.
+
+    initializeUpgradeUI() {
+        this.grid = new AlignGrid({
+            scene: this.scene,
+            rows: 10,
+            cols: 10
+        });
+
+       // this.grid.show();
+    }
+
+    getFormattedAttributeValue(attr, value) {
+        switch (attr.displayFormat) {
+            case 'percentage':
+                return (value * 100).toFixed(2) + '%'; // Convert to percentage
+            case 'seconds':
+                return value/1000 + ' Sec';
+            case 'km/s':
+                return (value*0.002).toFixed(2) + ' KM/s';
+            default:
+                return value; // Return value as-is for default
+        }
+    }
+
     
-        let currentX = startX;
-        let currentY = startY;
+    displayAvailableWeaponUpgrades() {
+        this.displayCurrentHeroCoins();
 
-        // Step 1: Define a method to update the coin display
-        const updateCoinDisplay = () => {
-            coinText.setText(`Coins: ${Math.round(this.hero.heroStats.coins)}`);
-        };
-
-        // Step 2: Add the coin display to the panel
-        let coinX = cam.scrollX + cam.width - 10; // Padding from the right
-        let coinY = cam.scrollY + spacing;
-
-        const coinText = this.scene.add.text(coinX, coinY, '', { fontSize: '16px', fill: '#FFD700' }) // Color set to gold
-            .setOrigin(1, 0) // Aligned to the top-right corner
-            .setDepth(6);
-        this.weaponShopPanel.add(coinText);
-
-        updateCoinDisplay(); // Initial display
-    
-    
-        const attributes = [
-            { name: 'Damage', property: 'damage', cost: 100, costModifier: 1.5, modificationType: 'value', modificationValue: 2 },
-            { name: 'Bullet Speed', property: 'bulletSpeed', cost: 80, costModifier: 1.5, modificationType: 'value', modificationValue: 25 },
-            { name: 'Critical Chance', property: 'criticalChance', cost: 120, costModifier: 1.5, modificationType: 'value', modificationValue: 0.02 },
-            { name: 'Critical Damage', property: 'criticalDamage', cost: 150, costModifier: 1.5, modificationType: 'value', modificationValue: 10 },
-            { name: 'Max Range', property: 'maxRange', cost: 70, costModifier: 1.5, modificationType: 'value', modificationValue: 10 },
-            { name: 'FireRate', property: 'cooldown', cost: 60, costModifier: 1.5, modificationType: 'value', modificationValue: -5 },
-            { name: 'Magazine Size', property: 'magazineSize', cost: 90, costModifier: 1.25, modificationType: 'value', modificationValue: 2 },
-            { name: 'Buy Ammo', property: 'totalAmmo', cost: 50, costModifier: 1.0, modificationType: 'value', modificationValue: 10 },
-            { name: 'Reload Time', property: 'reloadTime', cost: 85, costModifier: 1.2, modificationType: 'percentage', modificationValue: -10 },
-            { name: 'Bullet Penetration', property: 'penetration', cost: 95, costModifier: 1.3, modificationType: 'percentage', modificationValue: 10 }
+        // First row positions
+        const firstRowPositions = [
+            { x: 0, y: 2 },
+            { x: 0, y: 3 },
+            { x: 0, y: 4 },
+            { x: 0, y: 5 },
+            { x: 0, y: 6 },
+            { x: 0, y: 7 }
         ];
     
-        attributes.forEach((attr, index) => {
-            if (index === (attributes.length / 2)) {  // Assuming there are even number of attributes.
-                currentX += cam.width / 2;
-                currentY = startY;
-            }
+        // Second row positions
+        const secondRowPositions = [
+            { x: 5, y: 2 },
+            { x: 5, y: 3 },
+            { x: 5, y: 4 },
+            { x: 5, y: 5 },
+            { x: 5, y: 6 },
+            { x: 5, y: 7 }
+        ];
     
-            let text = this.scene.add.text(currentX, currentY, `${attr.name}: ${this.hero.currentWeapon.weaponStats[attr.property]}`, { fontSize: '16px' }).setDepth(6);
-            this.weaponShopPanel.add(text);
-            currentY += text.height;
-        
-            let buttonText = attr.property === 'totalAmmo' 
-                ? `Buy Ammo for ${attr.cost} coins`
-                : `Increase ${attr.name} by ${attr.modificationValue}${attr.modificationType === 'percentage' ? '%' : ''} \n ${attr.cost} coins`;
-        
-            // Reduced font size to '8px' and changed color to 'blue' for the button.
-            let button = this.scene.add.text(currentX, currentY, buttonText, { fontSize: '12px', fill: '#FF5733' }).setInteractive().setDepth(6);
-        
-            button.on('pointerdown', () => {
-                // Check if hero has enough coins
-                if (this.hero.heroStats.coins >= attr.cost) {
-                    if (attr.modificationType === 'value') {
-                        this.hero.currentWeapon.weaponStats.modifyAttributeByValue(attr.property, attr.modificationValue);
-                    } else if (attr.modificationType === 'percentage') {
-                        this.hero.currentWeapon.weaponStats.modifyAttributeByPercentage(attr.property, attr.modificationValue);
-                    }
-                    
-                    // Deduct coins from hero
-                    this.hero.heroStats.coins -= attr.cost;
+        // Combine both rows for easier iteration
+        const allPositions = firstRowPositions.concat(secondRowPositions);
+    
+        for (let i = 0; i < this.weaponUpgradeAttributes.length; i++) {
+            let attr = this.weaponUpgradeAttributes[i];
+        // Check if the hero has enough coins
+        let canAfford = this.scene.hero.heroStats.coins >= attr.cost;
+    
+        // Calculate the width and height based on grid cell size
+        let cellWidth = this.grid.getCellWidth() * 5 - 4; // Multiply by 5 for spanning 5 columns
+        let cellHeight = this.grid.getCellHeight() - 4;
+    
+            // Create a nine-slice button background and resize it
+            let btnBackground = this.scene.add.nineslice(0, 0, 'ui', 'blue_button00')
+                .setOrigin(0.5, 0.5)
+                .setScrollFactor(0)
+                .setDisplaySize(cellWidth, cellHeight);
             
-                    text.setText(`${attr.name}: ${this.hero.currentWeapon.weaponStats[attr.property]}`).setDepth(6);
-                    attr.cost *= attr.costModifier;
+            // Create a text element for the attribute's description
+            let displayValue = this.getFormattedAttributeValue(attr, this.hero.currentWeapon.weaponStats[attr.property]);
+            let btnText = this.scene.add.text(0, 0, attr.name + ": " + displayValue + " (" + attr.cost + " Gold)", {
+                color: '#000',
+                align: 'center',
+                fontStyle: 'bold'
+            })
+            .setOrigin(0.5, 0.5)
+            .setScrollFactor(0)
+            .setDepth(7); // Make sure text is above the button background
             
-                    // Update the text of the button with new cost
-                    button.setText(attr.property === 'totalAmmo'
-                        ? `Buy Ammo for ${Math.round(attr.cost.toFixed(2))} coins`
-                        : `Increase ${attr.name} by ${Math.round(attr.modificationValue)}${attr.modificationType === 'percentage' ? '%' : ''} for ${attr.cost.toFixed(2)} coins`);
-                } else {
-                    // Not enough coins
-                    const insufficientFundsText = this.scene.add.text(this.scene.input.x, this.scene.input.y, 'Not enough coins', { fontSize: '12px', fill: '#FF0000' }).setDepth(6);
-                    
-                    // Remove the text after 1 second
-                    this.scene.time.delayedCall(1000, () => {
-                        insufficientFundsText.destroy();
-                    });
-                }
-                updateCoinDisplay();
+    // Set the button tint based on affordability
+    if (!canAfford) {
+        btnBackground.setTint(0xaaaaaa); // Grey tint
+    }
+
+    let buttonGroup = this.scene.add.container(0, 0, [btnBackground, btnText])
+        .setSize(cellWidth, cellHeight)
+        .setInteractive(new Phaser.Geom.Rectangle(0, 0, cellWidth, cellHeight), Phaser.Geom.Rectangle.Contains)
+        .on('pointerdown', () => {
+            if (canAfford) {
+                this.buySelectedUpgrade(attr);
+            }
+        })
+        .on('pointerover', () => {
+            if (canAfford) {
+                btnBackground.setFrame('yellow_button00');
+                this.scene.tweens.add({
+                    targets: buttonGroup,
+                    scaleX: 1.2,
+                    scaleY: 1.2,
+                    duration: 200,
+                    ease: 'Sine.easeOut'
+                });
+            }
+        })
+        .on('pointerout', () => {
+            if (canAfford) {
+                btnBackground.setFrame('blue_button00');
+                this.scene.tweens.add({
+                    targets: buttonGroup,
+                    scaleX: 1,
+                    scaleY: 1,
+                    duration: 200,
+                    ease: 'Sine.easeOut'
+                });
+            }
+        })
+        .setScrollFactor(0)
+        .setDepth(6);
+    
+            // Place the button group on the grid
+            this.weaponUpgradeButtons.push(buttonGroup);
+            if (allPositions[i]) {
+                this.grid.placeAt(allPositions[i].x + 2, allPositions[i].y, buttonGroup); // +2 for centering across the span of 5 columns
+            }
+        }
+    }
+
+    displayCurrentHeroCoins() {
+        // Destroy previous coins text if it exists
+        if(this.coinsText) {
+            this.coinsText.destroy();
+        }
+    
+        // Create new text to show current hero coins
+        this.coinsText = this.scene.add.text(120, 50, `Coins: ${Math.round(this.scene.hero.heroStats.coins)}`, {
+            color: '#FFF',
+            align: 'right',
+            fontSize: '24px',
+            fontStyle: 'bold',
+            fontFamily: 'PixelAE'
+        })
+        .setOrigin(1, 0) // This will right-align the text to the screen edge
+        .setScrollFactor(0)
+        .setDepth(10); // Make sure text is always on top
+    }
+
+
+    buySelectedUpgrade(attr) {
+        if (this.scene.hero.heroStats.coins >= attr.cost) {
+            // Deduct the coins from the hero
+            this.scene.hero.heroStats.coins -= attr.cost;
+
+        if (attr.modificationType === 'value') {
+            this.hero.currentWeapon.weaponStats.modifyAttributeByValue(attr.property, attr.modificationValue);
+        } else if (attr.modificationType === 'percentage') {
+            this.hero.currentWeapon.weaponStats.modifyAttributeByPercentage(attr.property, attr.modificationValue);
+        }
+
+        attr.cost = Math.ceil(attr.cost * attr.costModifier); // Increase the cost for the next purchase
+
+        this.displayAvailableWeaponUpgrades(); // Redraw the attributes to update the displayed cost
+        this.displayCurrentHeroCoins();     // Update coins display after purchase
+    } else {
+        // Notify the player they don't have enough coins, maybe with a pop-up or a sound
+        console.log("Not enough coins to make this purchase!");
+    }
+
+    }
+
+    displayWeaponShopTitle() {
+        let weaponShopTextX = this.grid.cellWidth * 3 + this.grid.cellWidth / 2;
+        let endX = this.grid.cellWidth * 6 + this.grid.cellWidth / 2;
+        let weaponShopTextY = this.cellHeight * 1 + this.grid.cellHeight / 2;
+    
+        if (!this.weaponShopText) {
+            this.weaponShopText = this.scene.add.text(0, 0, 'Weapon Shop', { color: '#ffffff', fontSize: '20px' , fontFamily: 'PixelAE' });
+            this.weaponShopText.setOrigin(0.5, 0.5);
+            this.weaponShopText.setScrollFactor(0);
+            this.weaponShopText.setDepth(7);
+            this.weaponShopText.setPosition((weaponShopTextX + endX) / 2, weaponShopTextY);
+        } else {
+            this.weaponShopText.setVisible(true);
+        }
+        
+        let resumeButtonX = this.grid.cw / 2;
+        let resumeButtonY = this.grid.ch - this.grid.cellHeight;
+        
+        if (!this.resumeButton) {
+            this.resumeButton = this.scene.add.nineslice(resumeButtonX, resumeButtonY, 'ui', 'blue_button00')
+            .setOrigin(0.5, 0.5)
+            .setScrollFactor(0)
+            .setDepth(7)
+            .setDisplaySize(this.grid.cellWidth * 2, this.grid.cellHeight)
+            .setTint(0xff0000)
+            .setInteractive()
+            .on('pointerdown', () => {
+                this.resumeButton.setVisible(false);
+                this.resumeButtonText.setVisible(false); // Add this
+                this.hideUpgradeUI();
+                this.backgroundGraphics.destroy();
+                this.shapesGraphics.destroy();
             });
     
-            this.weaponShopPanel.add(button);
-            currentY += spacing;
+            // Create and position the "RESUME" text on top of the button
+            this.resumeButtonText = this.scene.add.text(resumeButtonX, resumeButtonY, 'RESUME', { color: '#ffffff', fontSize: '20px' ,
+            fontFamily: 'PixelAE' })
+            .setOrigin(0.5, 0.5)
+            .setScrollFactor(0)
+            .setDepth(8);
+        } else {
+            this.resumeButton.setVisible(true);
+            this.resumeButtonText.setVisible(true); // Add this
+        }
+    }
     
-            // Reset columnY and switch to the other column when halfway through attributes
-            if (index === (attributes.length / 2) - 1) {
-                currentY = cam.scrollY + cam.height / 4;
-            }
+    
+
+    hideUpgradeUI() {
+        this.weaponShopText.setVisible(false);
+        this.resumeButton.setVisible(false);
+        // Hiding weapon buttons:
+        this.weaponUpgradeButtons.forEach(button => {
+            button.setVisible(false);
+        });
+    
+        // Hiding hero upgrade buttons:
+        this.heroUpgradeButtons.forEach(button => {
+            button.setVisible(false);
+        });
+        this.scene.resumeGame();
+        this.hero.updateAutoFireDelay();
+                       // this.scene.music.setMusicVolume(1);
+               // this.scene.musicFade.setMusicFadeVolume(0);
+        // If there are any other UI elements (like texts or headers), hide them here.
+    }
+
+    color (i)
+    {
+        return 0x001100 * (i % 15) + 0x000033 * (i % 5);
+    }
+
+    update(){
+        this.displayCurrentHeroCoins();
+
+        if(this.shapes){
+        this.shapes.forEach(function (shape, i) {
+            shape.x += (1 + 0.1 * i);
+            shape.y += (1 + 0.1 * i);
         });
 
-    // Calculate the position for the Resume button
-    let resumeButtonX = centeredX;
-    let resumeButtonY = cam.scrollY + cam.height - resumePadding;  // Place it above the padding from the bottom
+        Phaser.Actions.WrapInRectangle(this.shapes, this.rect, 72);
 
-    // Create the Resume button
-    let resumeButton = this.scene.add.text(resumeButtonX, resumeButtonY, 'Resume', { fontSize: resumeFontSize, fill: '#FF5733' })
-        .setOrigin(0.5)  // Center the text
-        .setInteractive()
-        .setDepth(6);
-    this.weaponShopPanel.add(resumeButton);
-
-    // Handle button interactivity
-    resumeButton.on('pointerdown', () => {
-        if (this.weaponShopPanel) {
-            this.weaponShopPanel.clear(true, true);
-            this.weaponShopPanel = null;
-        }
-        
-        this.scene.resumeGame();
-        resumeButton.destroy();
-        this.hero.updateAutoFireDelay();
-        this.isUpgradeMenuActive = false;
-        this.hideTintedBackground();
-        this.scene.assetLoader.musicVolume = 1;
-        this.scene.assetLoader.musicFadeVolume =0;
-    });
-}
-    
-
-
-    applyHeroUpgrade(option) {
-        const heroStats = this.hero.heroStats;
-        switch (option) {
-            case '10 Max Health':
-                heroStats.modifyAttributeByValue('maxhealth', 20);
-                break;
-            case '2 Armor':
-                heroStats.modifyAttributeByValue('armor', 2);
-                break;
-            case '5 Max Shield':
-                heroStats.modifyAttributeByValue('maxshield', 5);
-                break;
-            case '10% Movement Speed':
-                heroStats.modifyAttributeByPercentage('movementSpeed', 10);
-                break;
-            case '100% Magnet Size':
-                heroStats.modifyAttributeByPercentage('magnetSize', 100);
-                break;
-            case '10% Coins Pickups':
-                heroStats.modifyAttributeByPercentage('coinsModifier', 10); 
-                break;
-            /*case '10% Ammo Pickups':
-                heroStats.modifyAttributeByPercentage('ammoModifier', 10); 
-                break;*/
-            case '10% XP Pickups':
-                heroStats.modifyAttributeByPercentage('xpModifier', 10);
-                break;
-        }
-        this.hideUpgrades();
+        this.shapesGraphics.clear();
+        this.shapes.forEach((shape, i) => {
+            this.shapesGraphics
+            .fillStyle(this.color(i), 0.5)
+            .fillCircleShape(shape);
+        }, this);
     }
 
-    hideUpgrades() {
-        if (this.upgradePanel) {
-            this.upgradePanel.clear(true, true);
-            this.upgradePanel = null;
-        }
-    
-        if (!this.weaponShopPanel) {
-            this.createWeaponShopPanel();
-        }
-
-        this.weaponShopPanel.visible = true;
-    }
-    update() {
-        if (this.isUpgradeMenuActive) {
-            const cam = this.scene.cameras.main;
-            this.updateTintedBackgroundSizeAndPosition(cam); // Adjust the tintedBackground position and size
-        }
     }
 }
+
+class AlignGrid {
+    constructor(config) {
+        this.config = config;
+        this.scene = config.scene;
+        this.cw = this.scene.sys.game.config.width;   // canvas width
+        this.ch = this.scene.sys.game.config.height;  // canvas height
+
+        this.cw = this.scene.sys.game.config.width;
+        this.ch = this.scene.sys.game.config.height;
+        this.rows = config.rows;
+        this.cols = config.cols;
+        this.cellWidth = this.cw / this.cols;
+        this.cellHeight = this.ch / this.rows;
+    }
+
+    placeAt(xx, yy, obj) {
+        let x2 = this.cellWidth * xx + this.cellWidth / 2;
+        let y2 = this.cellHeight * yy + this.cellHeight / 2;
+        obj.x = x2;
+        obj.y = y2;
+    }
+
+    getCellWidth() {
+        return this.scene.sys.game.config.width / this.cols;
+    }
+    
+    getCellHeight() {
+        return this.scene.sys.game.config.height / this.rows;
+    }
+
+    // A helper method to place text at a given cell
+    placeTextAt(xx, yy, text) {
+        let x2 = this.cellWidth * xx + this.cellWidth / 2;
+        let y2 = this.cellHeight * yy + this.cellHeight / 2;
+        let txt = this.scene.add.text(x2, y2, text, { color: '#ff0000', fontSize: '16px',
+        fontFamily: 'PixelAE' });
+        txt.setOrigin(0.5, 0.5);  // To center the text in the cell
+        txt.setDepth(6);
+        txt.setScrollFactor(0);  // If you don't want the text to scroll with the camera
+    }
+
+    show() {
+        this.graphics = this.scene.add.graphics();
+        this.graphics.lineStyle(2, 0xff0000, 0.5);
+    
+        for (let i = 0; i < this.cw; i += this.cellWidth) {
+            this.graphics.moveTo(i, 0);
+            this.graphics.lineTo(i, this.ch);
+    
+            for (let j = 0; j < this.ch; j += this.cellHeight) {
+                if (i === 0) {
+                    // Placing the row numbers on the first column
+                    this.placeTextAt(0, j / this.cellHeight, (j / this.cellHeight).toString());
+                }
+            }
+    
+            // Placing the column numbers on the first row
+            this.placeTextAt(i / this.cellWidth, 0, (i / this.cellWidth).toString());
+        }
+    
+        for (let i = 0; i < this.ch; i += this.cellHeight) {
+            this.graphics.moveTo(0, i);
+            this.graphics.lineTo(this.cw, i);
+        }
+    
+        this.graphics.strokePath();
+    
+        // Set depth and scroll factor
+        this.graphics.setDepth(6);
+        this.graphics.setScrollFactor(0);
+    
+        // Adding the "Weapon Shop" text across the specified cells
+    }
+}
+

@@ -53,13 +53,15 @@ class AssetLoader {
         this.loadImage('xporb-high', 'collectables/xporb3.png');
         this.loadImage('ammo', 'collectables/ammo.png');
 
-        //Numbers
+        //Numbers / UI
         this.loadSpriteSheet('yellowNumbers', 'numbers/yellow.png', { frameWidth: 6, frameHeight: 8 });
         this.loadSpriteSheet('blueNumbers', 'numbers/blue.png', { frameWidth: 6, frameHeight: 8 });
         this.loadSpriteSheet('greenNumbers', 'numbers/yellow.png', { frameWidth: 6, frameHeight: 8 });
         this.loadSpriteSheet('greyNumbers', 'numbers/yellow.png', { frameWidth: 6, frameHeight: 8 });
         this.loadSpriteSheet('redNumbers', 'numbers/yellow.png', { frameWidth: 6, frameHeight: 8 });
-
+        
+        this.loadImage('ammo', 'collectables/ammo.png');
+        this.scene.load.atlas('ui', 'nine-slice.png', '../lib/nine-slice.json');
 
         //Sounds
         this.scene.load.audio('music', [ 'sound/music.ogg', 'sound/music.mp3' ]);
@@ -160,6 +162,7 @@ class AssetLoader {
             key: 'skeleton-walk-down',
             frames: this.scene.anims.generateFrameNumbers('skeleton', { frames: [12, 13, 14, 15] }),
             frameRate: 8,
+            
             repeat: -1
         });
 

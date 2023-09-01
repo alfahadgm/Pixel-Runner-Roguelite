@@ -1,5 +1,5 @@
 class HeroStats {
-    constructor(scene, health = 100, armor = 0, shield = 0, movementSpeed = 1, xp = 0, level = 1, coins = 0) {
+    constructor(scene, health = 100, armor = 0, shield = 0, movementSpeed = 1.2, xp = 0, level = 1, coins = 150   ) {
         this.scene = scene;
         this.health = health;
         this.maxhealth = health;
@@ -41,7 +41,7 @@ class HeroStats {
         if (this.level < this.xpThresholds.length) {
             this.level++;
             this.scene.pauseGame();
-            this.scene.upgrades.showUpgrades();
+            this.scene.upgrades.displayRandomHeroUpgrades();
             // Add other level-up logic if needed, e.g., increasing health, etc.
         } else {
             // Logic for when the hero is at max level.

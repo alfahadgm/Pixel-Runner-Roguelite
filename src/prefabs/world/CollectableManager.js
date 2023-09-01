@@ -16,6 +16,8 @@ class CollectableManager {
             { type: 'xphigh', chance: 0.025, cost: 10 }, // Rare
         //    { type: 'ammo', chance: 0.267, cost: 2 } // Common
         ];
+
+        
     }
 
 

@@ -80,7 +80,8 @@ class GameScene extends Phaser.Scene {
     
     // In your main scene class
     displayCollectableText(x, y, text) {
-        const style = { color: 'yellow', fontSize: '16px' };
+        const style = { color: 'yellow', fontSize: '16px' ,
+        fontFamily: 'PixelAE' };
         const collectableText = this.add.text(x, y, text, style).setOrigin(0.5, 0.5); // Centering the text
         collectableText.setDepth(3);
 
@@ -230,6 +231,7 @@ class GameScene extends Phaser.Scene {
     
         // Prevent the rest of the update function from running if the game is paused
         if (this.isGamePaused) {
+            this.upgrades.update();
             return;
         }
 
@@ -263,14 +265,15 @@ class GameScene extends Phaser.Scene {
         this.collectableManager.collectablesGroup.getChildren().forEach(collectable => {
             collectable.update(this.hero);
         });
-        this.upgrades.update()
+       // this.upgrades.update()
         this.enemyManager.updateEnemies(this.hero);
         this.enemyManager.manageWaves(delta);
         this.totalTime += delta / 1000; 
         this.ui.updateTimerDisplay(); // We'll create this in the UI class
         this.ui.updateHeroUI();
         this.assetLoader.updateAudio();
-
+        this.upgrades.update();
+        this.hero.update();
     }
 
     executeDebuggerReport() {
@@ -291,8 +294,6 @@ class GameScene extends Phaser.Scene {
         // Pause animations
         this.assetLoader.pauseAllAnimations();
         
-        
-        // ... any other game pausing code
     }
     
     resumeGame() {
@@ -314,9 +315,6 @@ class GameScene extends Phaser.Scene {
             this.weaponShopPanel.clear(true, true);
         }
         
-        if (this.tintedBackground) {
-            this.tintedBackground.visible = false;
-        }
         
         this.isUpgradeMenuActive = false;
         

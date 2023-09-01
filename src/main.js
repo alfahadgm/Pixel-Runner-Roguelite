@@ -19,11 +19,14 @@ const config = {
     },
     scale: {
         mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+        width: 720,
+        height: 480
     },
     render: {
         antialias: true,
         antialiasGL: true,
+        pixelArt: true
     },
     fps: {
         min: 10,

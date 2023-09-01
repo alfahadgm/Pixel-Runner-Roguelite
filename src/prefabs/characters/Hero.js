@@ -20,6 +20,7 @@ class Hero extends Phaser.Physics.Arcade.Sprite {
         this.heroStats.startShieldRegeneration();
         // Weapon properties
         this.initializeWeapons();
+        this.healthBar = new HealthBar(scene, x, y - 20);  // Assuming a height of 20 for the health bar
     }
 
     initializeWeapons() {
@@ -113,8 +114,74 @@ class Hero extends Phaser.Physics.Arcade.Sprite {
         this.setupAutoFireEvent();
         // Reset the lastFired timestamp to allow immediate firing.
         this.lastFired = this.scene.time.now - this.currentWeapon.weaponStats.cooldown;
+    }
 
-        
+
+
+    update() {
+        this.healthBar.healthBarsetPosition(this.x -9 , this.y - 16 );
+        this.healthBar.update();
     }
 }
 
+class HealthBar {
+
+    constructor (scene, x, y)
+    {
+        this.bar = new Phaser.GameObjects.Graphics(scene);
+        this.bar.setDepth(4);
+        this.x = x;
+        this.y = y;
+        this.value = 100;
+        this.p = 19 / 100;
+
+        this.draw();
+        this.scene = scene;
+        scene.add.existing(this.bar);
+    }
+
+    healthBarsetPosition(x, y) {
+        this.x = x;
+        this.y = y;
+        this.draw();
+    }
+
+    update()
+    {
+        this.value = (this.scene.hero.heroStats.health/this.scene.hero.heroStats.maxhealth) * 100;
+
+        if (this.value < 0)
+        {
+            this.value = 0;
+        }
+        this.draw();
+        return (this.value === 0);
+    }
+
+    draw ()
+    {
+        this.bar.clear();
+
+        // BG
+    //    this.bar.fillStyle(0x000000);
+    //      this.bar.fillRect(this.x, this.y, 20, 4); // quarter of the original values
+
+        // Health
+        this.bar.fillStyle(0xffffff);
+        this.bar.fillRect(this.x + 0.5, this.y + 0.5, 19, 3); // adjusted accordingly
+
+        if (this.value < 30)
+        {
+            this.bar.fillStyle(0xff0000);
+        }
+        else
+        {
+            this.bar.fillStyle(0x00ff00);
+        }
+
+        var d = Math.floor(this.p * this.value);
+
+        this.bar.fillRect(this.x + 0.5, this.y + 0.5, d, 3); // adjusted accordingly
+    }
+
+}
