@@ -17,19 +17,19 @@ class UI {
         const baseY = this.scene.sys.game.config.height - 20; // 20px from bottom
 
         this.healthText = this.setupText(10, baseY, `Health: ${this.hero.heroStats.health}`);
-        this.armorText = this.setupText(100, baseY, `Armor: ${this.hero.heroStats.armor}`);
-        this.shieldText = this.setupText(200, baseY, `Shield: ${this.hero.heroStats.shield}`);
-        this.speedText = this.setupText(300, baseY, `Speed: ${this.hero.heroStats.movementSpeed}`);
+        this.armorText = this.setupText(200, baseY, `Armor: ${this.hero.heroStats.armor}`);
+        this.shieldText = this.setupText(400, baseY, `Shield: ${this.hero.heroStats.shield} / ${this.hero.heroStats.maxshield}`);
+        this.speedText = this.setupText(600, baseY, `Speed: ${this.hero.heroStats.movementSpeed}`);
         this.xpText = this.setupText(10, baseY-20, `XP: ${this.hero.heroStats.xp}/${this.hero.heroStats.xpThresholds[this.hero.heroStats.level - 1]}`);
-        this.levelText = this.setupText(100, baseY-20, `Level: ${this.hero.heroStats.level}`);
-        this.coinsText = this.setupText(200, baseY-20, `Coins: ${this.hero.heroStats.coins}`);
-        this.ammoText = this.setupText(300, baseY-20, `Ammo: ${this.hero.currentWeapon.weaponStats.currentMagazine} / ${this.hero.currentWeapon.weaponStats.totalAmmo}`);
+        this.levelText = this.setupText(200, baseY-20, `Level: ${this.hero.heroStats.level}`);
+        this.coinsText = this.setupText(400, baseY-20, `Coins: ${this.hero.heroStats.coins}`);
+        this.ammoText = this.setupText(600, baseY-20, `Ammo: ${this.hero.currentWeapon.weaponStats.currentMagazine} / ${this.hero.currentWeapon.weaponStats.totalAmmo}`);
     }
 
     updateHeroUI() {
-        this.healthText.setText(`Health: ${Math.round(this.hero.heroStats.health)}`);
+        this.healthText.setText(`Health: ${Math.round(this.hero.heroStats.health)}  / ${Math.round(this.hero.heroStats.maxhealth)}`);
         this.armorText.setText(`Armor: ${Math.round(this.hero.heroStats.armor)}`);
-        this.shieldText.setText(`Shield: ${Math.round(this.hero.heroStats.shield)}`);
+        this.shieldText.setText(`Shield: ${Math.round(this.hero.heroStats.shield)}  / ${Math.round(this.hero.heroStats.maxshield)}`);
         this.speedText.setText(`Speed: ${Math.round(this.hero.heroStats.movementSpeed * 100) / 100}`);
         this.xpText.setText(`XP: ${Math.round(this.hero.heroStats.xp)}/${Math.round(this.hero.heroStats.xpThresholds[this.hero.heroStats.level - 1])}`);
         this.levelText.setText(`Level: ${Math.round(this.hero.heroStats.level)}`);

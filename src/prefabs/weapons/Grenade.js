@@ -1,3 +1,6 @@
+/**STILL UNDER CONSTRUCTIONS */
+
+
 class Grenade extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, weaponStats, x, y, texture) {
         super(scene, x, y, texture);

@@ -68,8 +68,6 @@ class WeaponFactory {
 
         return [
             new Pistol(scene, 0xFFFF00),
-            // new PlasmaRifle(scene, 0x0000FF),
-           // new HandGrenade(scene, 0x888888)
         ];
     }
 }

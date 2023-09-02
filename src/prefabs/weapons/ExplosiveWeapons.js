@@ -1,3 +1,6 @@
+
+/**STILL UNDER CONSTRUCTIONS */
+
 class Explosive extends Weapon {
     constructor(scene, weaponStats, color, cooldown, name) {
         super(scene, weaponStats, color, cooldown, name);
