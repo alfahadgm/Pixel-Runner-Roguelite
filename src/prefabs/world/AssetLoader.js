@@ -135,12 +135,13 @@ class AssetLoader {
 
     audio(){
        this.music = this.scene.sound.add('music');
+       this.music.setVolume(this.musicVolume*0.1);
        this.music.play({
             loop: true
         });
 
        this.musicFade = this.scene.sound.add('musicFade');
-       // musicFade.on('volume', listener);
+       this.musicFade.setVolume(this.musicFadeVolume*0.5);
        this.musicFade.play({
             loop: true
         });
@@ -291,6 +292,24 @@ class AssetLoader {
         this.colorsSpriteSheets();
         this.collectablesSpriteSheets();  
         this.audio();  
+    }
+
+    destroy() {
+        // Stop and destroy any sounds.
+        const sounds = ['music', 'musicFade', 'xp', 'health', 'hit', 'crit', 'shoot', 'upgrade', 'levelup', 'dash'];
+        sounds.forEach(soundKey => {
+            if (this[soundKey]) {
+                this[soundKey].stop();
+                this[soundKey].destroy();
+                this[soundKey] = null;
+            }
+        });
+    
+        // Clear references
+        this.scene = null;
+        this.assetPath = null;
+        this.musicVolume = null;
+        this.musicFadeVolume = null;
     }
 
 }
