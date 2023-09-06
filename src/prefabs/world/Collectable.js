@@ -142,7 +142,7 @@ class Collectable extends Phaser.Physics.Arcade.Sprite {
     
         // Display the collectable text if there's a value to show
         if (displayText) {
-            this.scene.displayCollectableText(this.x, this.y, displayText);
+            this.scene.utils.displayCollectableText(this.x, this.y, displayText);
         }
     }
 }    

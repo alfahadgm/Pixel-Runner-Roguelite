@@ -3,12 +3,12 @@ class AssetLoader {
 
     constructor(scene) {
         this.scene = scene;
-        this.assetPath = './assets/';
+        this.assetDirectoryPath = './assets/';
         this.musicVolume = 1;
         this.musicFadeVolume = 0;
     }
 
-    setPath(path = this.assetPath) {
+    setPath(path = this.assetDirectoryPath) {
         this.scene.load.setPath(path);
     }
 
@@ -45,7 +45,7 @@ class AssetLoader {
         // Load bullets and projectiles sprites
         this.loadImage('beeP', 'enemy/projectiles/beeProjectile.png');
         this.loadImage('eyeballP', 'enemy/projectiles/eyeballProjectile.png');
-        this.loadImage('firearmBullet', 'bullet.png');
+        this.loadImage('bullet', 'bullet.png');
         this.loadImage('worm_projectile', 'enemy/projectiles/worm_projectile.png');
         this.loadSpriteSheet('energyBullet', 'plasmaRifle.png', { frameWidth: 16, frameHeight: 16 });
 
@@ -307,7 +307,7 @@ class AssetLoader {
     
         // Clear references
         this.scene = null;
-        this.assetPath = null;
+        this.assetDirectoryPath = null;
         this.musicVolume = null;
         this.musicFadeVolume = null;
     }
