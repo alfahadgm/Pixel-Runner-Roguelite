@@ -1,7 +1,7 @@
 # Note
 ( The Game is still under development )
 # Pixel Runner
-Phaser Top-down Shooter Roguelite is a game powered by the Phaser game framework. In this 2D action-packed game, the player assumes the role of a hero navigating through a dynamic world filled with enemies and collectables. The game has features typical to roguelites, such as randomly generated elements and progression through different waves or levels.
+PIXEL RUNNER is a game powered by the Phaser game framework. In this 2D action-packed game, the player assumes the role of a hero navigating through a dynamic world filled with enemies and collectables. The game has features typical to roguelites, such as randomly generated elements and progression through different waves or levels.
 ![image](https://github.com/alfahadgm/Pixel-Runner-Roguelite/assets/48056647/43a40324-aa30-443e-8f53-02c88950ba45)
 
 
@@ -16,8 +16,8 @@ Phaser Top-down Shooter Roguelite is a game powered by the Phaser game framework
 ### 2. **Clone the Repository**:
 If the game's code is hosted on a Git repository (e.g., GitHub), clone it:
 ```bash
-git clone [repository-url]
-cd [repository-folder-name]
+git clone [[repository-url]](https://github.com/alfahadgm/Pixel-Runner-Roguelite.git)
+cd Pixel-Runner-Roguelite
 ```
 
 ### 3. **Install Dependencies**:
